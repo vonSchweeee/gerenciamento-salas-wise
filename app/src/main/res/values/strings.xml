@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Gerenciamento de Salas</string>
+    <string name="ip">172.16.1.227:8080</string>
+</resources>
