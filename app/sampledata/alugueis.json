@@ -1,0 +1,14 @@
+{
+  "alugueis":
+  {
+    "id": "1",
+    "id_sala": "Conselho Jedi",
+    "id_usuario": "Clovis",
+    "dataHoraInicio": "2020-01-30 14:00:00",
+    "dataHoraFim": "2020-01-30 15:00:00",
+    "descricao": "Reunião de Planejamento do Projeto Reserva de Salas",
+    "ativo": 1,
+    "dataCriacao": "2020-01-20",
+    "dataAlteracao": "2020-01-20"
+  }
+}

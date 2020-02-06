@@ -1,0 +1,46 @@
+{
+  "salas": [
+    {
+      "id": 1,
+      "nome": "Conselho Jedi",
+      "quantidadePessoasSentadas": null,
+      "possuiMultimidia": 1,
+      "possuiArcon": 1,
+      "areaDaSala": 3.5,
+      "localizacao": "1o. andar",
+      "latitude": 0.001,
+      "longitude": 0.003,
+      "ativo": 1,
+      "dataCriacao": "2020-01-20",
+      "dataAlteracao": "2020-01-20"
+    },
+    {
+      "id": 2,
+      "nome": "Fábrica de Software",
+      "quantidadePessoasSentadas": null,
+      "possuiMultimidia": 1,
+      "possuiArcon": 1,
+      "areaDaSala": 3.5,
+      "localizacao": "1o. andar",
+      "latitude": 0.001,
+      "longitude": 0.003,
+      "ativo": 1,
+      "dataCriacao": "2020-01-20",
+      "dataAlteracao": "2020-01-20"
+    },
+    {
+      "id": 3,
+      "nome": "Cozinha",
+      "quantidadePessoasSentadas": null,
+      "possuiMultimidia": 1,
+      "possuiArcon": 1,
+      "areaDaSala": 3.5,
+      "localizacao": "1o. andar",
+      "latitude": 0.001,
+      "longitude": 0.003,
+      "ativo": 1,
+      "dataCriacao": "2020-01-20",
+      "dataAlteracao": "2020-01-20"
+    }
+  ]
+}
