@@ -15,17 +15,17 @@ import com.example.gerenciamentodesalas.R;
 public class HttpServiceRegistrar extends AsyncTask<String, Void, String> {
 
     private final String name;
-    private final String email;
-    private final String password;
-    private final int idEmpresa;
-    private final String ip;
+        private final String email;
+        private final String password;
+        private final int idEmpresa;
+        private final String ip;
 
     public HttpServiceRegistrar(String name, String email, String password, int idEmpresa, String ip) {
-        this.name = name;
-        this.email = email;
-        this.password = password;
-        this.idEmpresa = idEmpresa;
-        this.ip = ip;
+            this.name = name;
+            this.email = email;
+            this.password = password;
+            this.idEmpresa = idEmpresa;
+            this.ip = ip;
     }
     @Override
     protected String doInBackground(String... strings) {

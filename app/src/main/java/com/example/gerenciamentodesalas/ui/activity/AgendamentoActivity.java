@@ -25,6 +25,7 @@ import com.google.gson.JsonParser;
 
 import org.joda.time.DateTime;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
@@ -48,7 +49,7 @@ public class AgendamentoActivity extends AppCompatActivity {
         String salaEscolhida = null;
         Intent intent = getIntent();
         String sala = intent.getExtras().getString("salaEscolhida");
-        String data = intent.getExtras().getString("dataEscolhida");
+        final String data = intent.getExtras().getString("dataEscolhida");
         Date dataRaw = (Date)intent.getSerializableExtra("dataFormatadaEscolhida");
         String jsonSalasStr = intent.getExtras().getString("jsonSalas");
         DateTime dtOrg = new DateTime(dataRaw);
@@ -114,9 +115,21 @@ public class AgendamentoActivity extends AppCompatActivity {
 
         final ListView listaDeAlocacao = findViewById(R.id.lista_alugueis_listview);
         listaDeAlocacao.setAdapter(new AgendamentoAdapter(listaSalas, this));
-
+        JSONObject jsonUsuario;
+        int idUsuario = 0;
+        try {
+            jsonUsuario = new JSONObject(fileWritterService.lerArquivo(AgendamentoActivity.this, "usuariologado.json"));
+            idUsuario = jsonUsuario.getInt("id");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        final int finalIdSala = Integer.parseInt(idSala);
+        final int finalIdUsuario = idUsuario;
         fabAddAlocacao.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+                intentCriacaoAgendamento.putExtra("data", data);
+                intentCriacaoAgendamento.putExtra("idSala", finalIdSala);
+                intentCriacaoAgendamento.putExtra("idUsuario", finalIdUsuario);
                 AgendamentoActivity.this.startActivity(intentCriacaoAgendamento);
             }
         });

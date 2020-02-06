@@ -47,7 +47,7 @@ public class LoginActivity extends AppCompatActivity {
                 String password = viewSenha.getText().toString();
                 String resposta = "400";
                 Resources resources=getResources();
-                String ip=resources.getString(R.string.ip);
+                String ip = resources.getString(R.string.ip);
                 try {
                     resposta = new HttpServiceLogar(email, password, ip).execute().get();
                 } catch (Exception e) {
@@ -70,9 +70,9 @@ public class LoginActivity extends AppCompatActivity {
                         intent.putExtra("nomeOrganizacao", nomeOrganizacao);
                         intent.putExtra("idOrganizacao", idOrganizacao);
                         FileWritterService fileWritterService = new FileWritterService();
-                        boolean isFilePresent = fileWritterService.arquivoExiste(LoginActivity.this, email + ".json");
+                        boolean isFilePresent = fileWritterService.arquivoExiste(LoginActivity.this, "usuariologado.json");
                         if(isFilePresent) {
-                            String jsonStringLocal = fileWritterService.lerArquivo(LoginActivity.this, email + ".json");
+                            String jsonStringLocal = fileWritterService.lerArquivo(LoginActivity.this, "usuariologado.json");
                             if (jsonStringLocal.equals(usuarioJSONStr)) {
                                 builder.setMessage("Login efetuado com sucesso!").setTitle("Sucesso!");
                                 builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
@@ -84,13 +84,19 @@ public class LoginActivity extends AppCompatActivity {
                                 dialog.show();
                             }
                             else {
-                                boolean arquivoDeletado = fileWritterService.arquivoDeletado(LoginActivity.this, email + ".json");
+                                boolean arquivoDeletado = fileWritterService.arquivoDeletado(LoginActivity.this, "usuariologado.json");
                                 if (arquivoDeletado) {
-                                    boolean isFileCreated = fileWritterService.criarArquivo(LoginActivity.this, email + ".json", usuarioJSONStr);
+                                    boolean isFileCreated = fileWritterService.criarArquivo(LoginActivity.this, "usuariologado.json", usuarioJSONStr);
                                     if(isFileCreated) {
                                         builder.setMessage("Login efetuado com sucesso!").setTitle("Sucesso!");
                                         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                                             public void onClick(DialogInterface dialog, int id) {
+                                                LoginActivity.this.startActivity(intent);
+                                            }
+                                        });
+                                        builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                                            @Override
+                                            public void onCancel(DialogInterface dialog) {
                                                 LoginActivity.this.startActivity(intent);
                                             }
                                         });
@@ -119,7 +125,7 @@ public class LoginActivity extends AppCompatActivity {
                                 }
                             }
                         } else {
-                            boolean isFileCreated = fileWritterService.criarArquivo(LoginActivity.this, email + ".json", usuarioJSONStr);
+                            boolean isFileCreated = fileWritterService.criarArquivo(LoginActivity.this, "usuariologado.json", usuarioJSONStr);
                             if(isFileCreated) {
                                 builder.setMessage("Login efetuado com sucesso!").setTitle("Sucesso!");
                                 builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
