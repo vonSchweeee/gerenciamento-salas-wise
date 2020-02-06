@@ -1,11 +1,16 @@
 package com.example.gerenciamentodesalas.ui.activity;
 
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.gerenciamentodesalas.R;
@@ -13,6 +18,7 @@ import com.example.gerenciamentodesalas.model.AlocacaoSala;
 import com.example.gerenciamentodesalas.service.FileWritterService;
 import com.example.gerenciamentodesalas.service.alocacaoPegar;
 import com.example.gerenciamentodesalas.ui.adapter.AgendamentoAdapter;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -32,7 +38,9 @@ public class AgendamentoActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_agendamento);
         Resources resources=getResources();
+        final FloatingActionButton fabAddAlocacao = findViewById(R.id.fabAddAlocacao);
         final String ip=resources.getString(R.string.ip);
+        final Intent  intentCriacaoAgendamento = new Intent(AgendamentoActivity.this, CriacaoAgendamentoActivity.class);
         SimpleDateFormat formatoData = new SimpleDateFormat("yyyy-MM-dd");
         TextView textViewSala = findViewById(R.id.textViewNomeSala);
         TextView textViewData = findViewById(R.id.textViewDataEscolhida);
@@ -99,13 +107,22 @@ public class AgendamentoActivity extends AppCompatActivity {
                     AlocacaoSala alocacaoSala = gson.fromJson(gsonObj, AlocacaoSala.class);
                     listaSalas.add(alocacaoSala);
                 }
-//            }
-            }
+              }
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         final ListView listaDeAlocacao = findViewById(R.id.lista_alugueis_listview);
         listaDeAlocacao.setAdapter(new AgendamentoAdapter(listaSalas, this));
+
+        fabAddAlocacao.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                AgendamentoActivity.this.startActivity(intentCriacaoAgendamento);
+            }
+        });
+
+        }
+
+
+
     }
-}

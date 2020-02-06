@@ -68,10 +68,10 @@
         <!-- Main content -->
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/floating_action_button"
+            android:id="@+id/fabAddAlocacao"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom|right"
+            android:layout_gravity="bottom|end"
             android:layout_margin="16dp"
             android:outlineAmbientShadowColor="@android:color/black"
             android:outlineSpotShadowColor="@android:color/black"

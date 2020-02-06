@@ -7,7 +7,7 @@
     android:layout_height="match_parent">
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/inputNomeRegistro"
+        android:id="@+id/LayoutNomeRegistro"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="64dp"
@@ -17,6 +17,7 @@
         app:layout_constraintTop_toBottomOf="@+id/textLNomeRegistro">
 
         <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/inputNomeRegistro"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Nome"
@@ -24,7 +25,7 @@
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/inputSenhaRegistro"
+        android:id="@+id/LayoutSenhaRegistro"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="64dp"
@@ -35,6 +36,7 @@
         app:layout_constraintTop_toBottomOf="@+id/textSenhaRegistro">
 
         <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/inputSenhaRegistro"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Senha"
@@ -112,7 +114,7 @@
         app:layout_constraintVertical_bias="0.84000003" />
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/inputEmailRegistro"
+        android:id="@+id/LayoutEmailRegistro"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="64dp"
@@ -121,6 +123,7 @@
         app:layout_constraintStart_toStartOf="@+id/textEmailRegistro">
 
         <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/inputEmailRegistro"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="E-mail"
