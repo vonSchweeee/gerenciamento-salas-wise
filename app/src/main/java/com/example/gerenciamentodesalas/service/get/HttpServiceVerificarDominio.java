@@ -1,4 +1,4 @@
-package com.example.gerenciamentodesalas.service;
+package com.example.gerenciamentodesalas.service.get;
 
 import android.os.AsyncTask;
 

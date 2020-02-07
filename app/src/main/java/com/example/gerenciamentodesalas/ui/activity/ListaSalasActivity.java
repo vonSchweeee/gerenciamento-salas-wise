@@ -14,7 +14,7 @@ import com.example.gerenciamentodesalas.R;
 import com.example.gerenciamentodesalas.dao.SalasDAO;
 import com.example.gerenciamentodesalas.model.Sala;
 import com.example.gerenciamentodesalas.service.FileWritterService;
-import com.example.gerenciamentodesalas.service.HttpServiceGetSalas;
+import com.example.gerenciamentodesalas.service.get.HttpServiceGetSalas;
 import com.example.gerenciamentodesalas.ui.adapter.ListaSalasAdapter;
 
 import java.util.List;

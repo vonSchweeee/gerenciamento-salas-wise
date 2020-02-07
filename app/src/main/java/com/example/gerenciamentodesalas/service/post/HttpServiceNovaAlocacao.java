@@ -1,4 +1,4 @@
-package com.example.gerenciamentodesalas.service;
+package com.example.gerenciamentodesalas.service.post;
 
 import android.os.AsyncTask;
 import android.util.Base64;

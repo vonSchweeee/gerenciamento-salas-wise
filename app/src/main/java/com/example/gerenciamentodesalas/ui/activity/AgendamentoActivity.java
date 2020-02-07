@@ -1,22 +1,19 @@
 package com.example.gerenciamentodesalas.ui.activity;
 
-import android.app.Dialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.gerenciamentodesalas.R;
 import com.example.gerenciamentodesalas.model.AlocacaoSala;
 import com.example.gerenciamentodesalas.service.FileWritterService;
-import com.example.gerenciamentodesalas.service.alocacaoPegar;
+import com.example.gerenciamentodesalas.service.get.HttpServiceGetAlocacoesData;
 import com.example.gerenciamentodesalas.ui.adapter.AgendamentoAdapter;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.gson.Gson;
@@ -40,8 +37,10 @@ public class AgendamentoActivity extends AppCompatActivity {
         setContentView(R.layout.activity_agendamento);
         Resources resources=getResources();
         final FloatingActionButton fabAddAlocacao = findViewById(R.id.fabAddAlocacao);
+        final FloatingActionButton fabRemAlocacao = findViewById(R.id.fabRemAlocacao);
         final String ip=resources.getString(R.string.ip);
-        final Intent  intentCriacaoAgendamento = new Intent(AgendamentoActivity.this, CriacaoAgendamentoActivity.class);
+        final Intent intentCriacaoAgendamento = new Intent(AgendamentoActivity.this, CriacaoAgendamentoActivity.class);
+        final Intent intentExcluirAgendamento = new Intent(AgendamentoActivity.this, ExcluirAgendamentoActivity.class);
         SimpleDateFormat formatoData = new SimpleDateFormat("yyyy-MM-dd");
         TextView textViewSala = findViewById(R.id.textViewNomeSala);
         TextView textViewData = findViewById(R.id.textViewDataEscolhida);
@@ -60,7 +59,7 @@ public class AgendamentoActivity extends AppCompatActivity {
         textViewSala.setText(sala);
         textViewData.setText(data);
         String retorno = null;
-        FileWritterService fileWritterService = new FileWritterService();
+        final FileWritterService fileWritterService = new FileWritterService();
         String jsonAlocacoesStr=null;
         JSONArray arraySalas = null;
         int posSala = intent.getExtras().getInt("position");
@@ -74,7 +73,7 @@ public class AgendamentoActivity extends AppCompatActivity {
         List<AlocacaoSala> listaSalas= new ArrayList<AlocacaoSala>();
         String jsonSalaStr = fileWritterService.lerArquivo(AgendamentoActivity.this, "alocacoes_" + sala + "_" + data.replace("/", "-") + ".json");
         try {
-            retorno = new alocacaoPegar( ip, idSala, dataStr, fimDiaEscolhido).execute().get();
+            retorno = new HttpServiceGetAlocacoesData( ip, idSala, dataStr, fimDiaEscolhido).execute().get();
             boolean isFilePresent = fileWritterService.arquivoExiste(AgendamentoActivity.this, "alocacoes_" + sala + "_" + data + ".json");
             if(isFilePresent) {
                 jsonAlocacoesStr = fileWritterService.lerArquivo(AgendamentoActivity.this, "alocacoes_" + sala + "_" + data.replace("/", "-") + ".json");
@@ -113,7 +112,7 @@ public class AgendamentoActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        final ListView listaDeAlocacao = findViewById(R.id.lista_alugueis_listview);
+        final ListView listaDeAlocacao = findViewById(R.id.lista_alocacao_listview);
         listaDeAlocacao.setAdapter(new AgendamentoAdapter(listaSalas, this));
         JSONObject jsonUsuario;
         int idUsuario = 0;
@@ -133,9 +132,26 @@ public class AgendamentoActivity extends AppCompatActivity {
                 AgendamentoActivity.this.startActivity(intentCriacaoAgendamento);
             }
         });
+        final String finalJsonAlocacoesStr = jsonAlocacoesStr;
+        fabRemAlocacao.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                listaDeAlocacao.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        try {
+                            TextView viewAlocacaoSelecionada = findViewById(R.id.textViewCardAluguel);
+                            JSONArray jsonAlocacoes = new JSONArray(finalJsonAlocacoesStr);
+                            JSONObject jsonAlocacaoSelecionada = jsonAlocacoes.getJSONObject(position);
+                            intentExcluirAgendamento.putExtra("jsonAlocacaoSelecionada", jsonAlocacaoSelecionada.toString());
+                            AgendamentoActivity.this.startActivity(intentExcluirAgendamento);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+            }
+        });
+
 
         }
-
-
-
     }

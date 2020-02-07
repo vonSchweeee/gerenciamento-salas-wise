@@ -11,8 +11,8 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.gerenciamentodesalas.R;
 import com.example.gerenciamentodesalas.service.FileWritterService;
-import com.example.gerenciamentodesalas.service.HttpServiceGetUsuario;
-import com.example.gerenciamentodesalas.service.HttpServiceLogar;
+import com.example.gerenciamentodesalas.service.get.HttpServiceGetUsuario;
+import com.example.gerenciamentodesalas.service.get.HttpServiceLogar;
 
 import org.json.JSONObject;
 

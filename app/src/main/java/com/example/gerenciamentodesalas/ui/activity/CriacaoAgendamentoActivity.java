@@ -15,14 +15,13 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.gerenciamentodesalas.R;
-import com.example.gerenciamentodesalas.service.HttpServiceNovaAlocacao;
+import com.example.gerenciamentodesalas.service.post.HttpServiceNovaAlocacao;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.concurrent.ExecutionException;
 
 public class CriacaoAgendamentoActivity extends AppCompatActivity {
     Boolean inicioAlterado = false;

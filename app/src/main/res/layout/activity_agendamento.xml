@@ -30,7 +30,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <ListView
-        android:id="@+id/lista_alugueis_listview"
+        android:id="@+id/lista_alocacao_listview"
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -38,7 +38,6 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imageViewHeaderAgendamento"
-        app:layout_constraintVertical_bias="0.0"
         tools:listitem="@layout/item_alocacao">
 
     </ListView>
@@ -59,13 +58,27 @@
         app:layout_constraintVertical_bias="1.0" />
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/coordinatorLayout"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
+        android:layout_height="178dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
-        <!-- Main content -->
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fabRemAlocacao"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:clickable="true"
+            android:outlineAmbientShadowColor="@android:color/black"
+            android:outlineSpotShadowColor="@android:color/black"
+            app:backgroundTint="@color/greyWhite"
+            app:borderWidth="0.5dp"
+            app:fabCustomSize="64dp"
+            app:maxImageSize="48dp"
+            app:srcCompat="@drawable/ic_delete_48px"
+            tools:layout_editor_absoluteX="16dp"
+            tools:layout_editor_absoluteY="643dp" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fabAddAlocacao"
@@ -79,8 +92,7 @@
             app:borderWidth="0.5dp"
             app:fabCustomSize="64dp"
             app:maxImageSize="48dp"
-            app:srcCompat="@drawable/ic_add_48px" />
-
+            app:srcCompat="@drawable/ic_add_24px" />
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

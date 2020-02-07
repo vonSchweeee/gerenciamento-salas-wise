@@ -16,8 +16,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.gerenciamentodesalas.R;
 import com.example.gerenciamentodesalas.model.Organizacao;
-import com.example.gerenciamentodesalas.service.HttpServiceRegistrar;
-import com.example.gerenciamentodesalas.service.HttpServiceVerificarDominio;
+import com.example.gerenciamentodesalas.service.post.HttpServiceRegistrar;
+import com.example.gerenciamentodesalas.service.get.HttpServiceVerificarDominio;
 import com.example.gerenciamentodesalas.ui.adapter.SpinnerAdapter;
 
 import java.util.List;

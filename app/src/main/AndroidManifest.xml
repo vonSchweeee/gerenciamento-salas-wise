@@ -12,7 +12,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".ui.activity.CriacaoAgendamentoActivity"></activity>
+        <activity android:name=".ui.activity.ExcluirAgendamentoActivity"></activity>
+        <activity android:name=".ui.activity.CriacaoAgendamentoActivity" />
         <activity android:name=".ui.activity.LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
