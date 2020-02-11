@@ -1,4 +1,6 @@
 <resources>
     <string name="app_name">Gerenciamento de Salas</string>
     <string name="ip">172.30.248.90:8080</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
 </resources>

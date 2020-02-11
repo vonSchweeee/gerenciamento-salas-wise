@@ -1,6 +1,8 @@
 package com.example.gerenciamentodesalas.ui.activity;
+
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.view.View;
@@ -9,6 +11,7 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+
 import com.example.gerenciamentodesalas.R;
 import com.example.gerenciamentodesalas.service.FileWritterService;
 import com.example.gerenciamentodesalas.service.get.HttpServiceGetUsuario;
@@ -21,8 +24,29 @@ public class LoginActivity extends AppCompatActivity {
     TextView viewSenha;
     Button btnLogin, btnRegistro;
     AlertDialog.Builder builder;
+    public static final String USER_PREFERENCE = "INFO_AUTO_LOGIN";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        final FileWritterService fileWritterService = new FileWritterService();
+        final Intent intent = new Intent(LoginActivity.this, ListaSalasActivity.class);
+        Boolean arquivoExiste = fileWritterService.arquivoExiste(this, "usuariologado.json");
+        if (arquivoExiste) {
+            try {
+                Resources resources=getResources();
+                String ip = resources.getString(R.string.ip);
+                SharedPreferences sp = getSharedPreferences(USER_PREFERENCE, MODE_PRIVATE);
+                String email = sp.getString("email", null);
+                String senha= sp.getString("senha", null);
+                String resposta = new HttpServiceLogar(email, senha, ip).execute().get();
+                if (resposta == "200") {
+                    LoginActivity.this.startActivity(intent);
+                    LoginActivity.this.finish();
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         builder = new AlertDialog.Builder(LoginActivity.this);
@@ -30,7 +54,6 @@ public class LoginActivity extends AppCompatActivity {
         btnRegistro = findViewById(R.id.btnRegistro);
         viewEmail  = findViewById(R.id.inputLogin);
         viewSenha = findViewById(R.id.inputSenha);
-        final Intent intent = new Intent(LoginActivity.this, ListaSalasActivity.class);
         btnRegistro.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -63,17 +86,22 @@ public class LoginActivity extends AppCompatActivity {
                 }
                 if (resposta == "200"){
                     try {
+                        SharedPreferences.Editor editorUser = getSharedPreferences(USER_PREFERENCE, MODE_PRIVATE).edit();
                         String usuarioJSONStr = new HttpServiceGetUsuario(email, ip).execute().get();
                         JSONObject usuarioJSON = new JSONObject(usuarioJSONStr);
                         String nomeOrganizacao = usuarioJSON.getJSONObject("idOrganizacao").getString("nome");
                         String idOrganizacao = usuarioJSON.getJSONObject("idOrganizacao").getString("id");
-                        intent.putExtra("nomeOrganizacao", nomeOrganizacao);
-                        intent.putExtra("idOrganizacao", idOrganizacao);
-                        FileWritterService fileWritterService = new FileWritterService();
+                        String nomeUsuario = usuarioJSON.getString("nome");
+                        editorUser.putString("nomeOrganizacao", nomeOrganizacao);
+                        editorUser.putString("idOrganizacao", idOrganizacao);
                         boolean isFilePresent = fileWritterService.arquivoExiste(LoginActivity.this, "usuariologado.json");
                         if(isFilePresent) {
                             String jsonStringLocal = fileWritterService.lerArquivo(LoginActivity.this, "usuariologado.json");
                             if (jsonStringLocal.equals(usuarioJSONStr)) {
+                                editorUser.putString("email", email);
+                                editorUser.putString("senha", password);
+                                editorUser.putString("nome", nomeUsuario);
+                                editorUser.commit();
                                 builder.setMessage("Login efetuado com sucesso!").setTitle("Sucesso!");
                                 builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int id) {

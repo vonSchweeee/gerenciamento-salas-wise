@@ -1,14 +1,21 @@
 package com.example.gerenciamentodesalas.ui.activity;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.example.gerenciamentodesalas.R;
 import com.example.gerenciamentodesalas.model.AlocacaoSala;
@@ -16,6 +23,7 @@ import com.example.gerenciamentodesalas.service.FileWritterService;
 import com.example.gerenciamentodesalas.service.get.HttpServiceGetAlocacoesData;
 import com.example.gerenciamentodesalas.ui.adapter.AgendamentoAdapter;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.navigation.NavigationView;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -30,67 +38,75 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class AgendamentoActivity extends AppCompatActivity {
+public class AgendamentoActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+    private DrawerLayout drawer;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_agendamento);
-        Resources resources=getResources();
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        drawer = findViewById(R.id.drawer_layout);
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
+        Resources resources = getResources();
         final FloatingActionButton fabAddAlocacao = findViewById(R.id.fabAddAlocacao);
         final FloatingActionButton fabRemAlocacao = findViewById(R.id.fabRemAlocacao);
-        final String ip=resources.getString(R.string.ip);
+        final String ip = resources.getString(R.string.ip);
         final Intent intentCriacaoAgendamento = new Intent(AgendamentoActivity.this, CriacaoAgendamentoActivity.class);
         final Intent intentExcluirAgendamento = new Intent(AgendamentoActivity.this, ExcluirAgendamentoActivity.class);
         SimpleDateFormat formatoData = new SimpleDateFormat("yyyy-MM-dd");
-        TextView textViewSala = findViewById(R.id.textViewNomeSala);
         TextView textViewData = findViewById(R.id.textViewDataEscolhida);
         Date dataEscolhida = null;
         String salaEscolhida = null;
         Intent intent = getIntent();
         String sala = intent.getExtras().getString("salaEscolhida");
         final String data = intent.getExtras().getString("dataEscolhida");
-        Date dataRaw = (Date)intent.getSerializableExtra("dataFormatadaEscolhida");
+        Date dataRaw = (Date) intent.getSerializableExtra("dataFormatadaEscolhida");
         String jsonSalasStr = intent.getExtras().getString("jsonSalas");
         DateTime dtOrg = new DateTime(dataRaw);
         DateTime dtPlusOne = dtOrg.plusDays(1);
         Date dataFim = dtPlusOne.toDate();
         String fimDiaEscolhido = formatoData.format(dataFim);
         String dataStr = formatoData.format(dataRaw);
-        textViewSala.setText(sala);
+        //textViewSala.setText(sala);
         textViewData.setText(data);
         String retorno = null;
         final FileWritterService fileWritterService = new FileWritterService();
-        String jsonAlocacoesStr=null;
+        String jsonAlocacoesStr = null;
         JSONArray arraySalas = null;
         int posSala = intent.getExtras().getInt("position");
-        String idSala=null;
+        String idSala = null;
         try {
             arraySalas = new JSONArray(jsonSalasStr);
             idSala = arraySalas.getJSONObject(posSala).getString("id");
         } catch (Exception e) {
             e.printStackTrace();
         }
-        List<AlocacaoSala> listaSalas= new ArrayList<AlocacaoSala>();
+        List<AlocacaoSala> listaSalas = new ArrayList<AlocacaoSala>();
         String jsonSalaStr = fileWritterService.lerArquivo(AgendamentoActivity.this, "alocacoes_" + sala + "_" + data.replace("/", "-") + ".json");
         try {
-            retorno = new HttpServiceGetAlocacoesData( ip, idSala, dataStr, fimDiaEscolhido).execute().get();
+            retorno = new HttpServiceGetAlocacoesData(ip, idSala, dataStr, fimDiaEscolhido).execute().get();
             boolean isFilePresent = fileWritterService.arquivoExiste(AgendamentoActivity.this, "alocacoes_" + sala + "_" + data + ".json");
-            if(isFilePresent) {
+            if (isFilePresent) {
                 jsonAlocacoesStr = fileWritterService.lerArquivo(AgendamentoActivity.this, "alocacoes_" + sala + "_" + data.replace("/", "-") + ".json");
-                if (! retorno.equals(jsonAlocacoesStr)) {
+                if (!retorno.equals(jsonAlocacoesStr)) {
                     boolean isFileCreated = fileWritterService.criarArquivo(AgendamentoActivity.this, "alocoes_" + sala + "_" + data + ".json", retorno);
-                    if(isFileCreated) {
+                    if (isFileCreated) {
                         System.out.println("JSON das alocações criado com sucesso.");
                     } else {
                         System.out.println("Falha ao atualizar JSON das alocações.");
                     }
-                }
-                else{
+                } else {
                     jsonAlocacoesStr = retorno;
                 }
             } else {
-                boolean isFileCreated = fileWritterService.criarArquivo(AgendamentoActivity.this, "alocacoes_" + sala + "_" + data.replace("/", "-")+ ".json", retorno);
-                if(isFileCreated) {
+                boolean isFileCreated = fileWritterService.criarArquivo(AgendamentoActivity.this, "alocacoes_" + sala + "_" + data.replace("/", "-") + ".json", retorno);
+                if (isFileCreated) {
                     System.out.println("JSON das alocações criado com sucesso.");
                     jsonAlocacoesStr = retorno;
                 } else {
@@ -98,7 +114,7 @@ public class AgendamentoActivity extends AppCompatActivity {
                 }
             }
             JSONArray alocacaoSalaRaw = new JSONArray(jsonAlocacoesStr);
-            JSONObject alocacaoSalaObj=null;
+            JSONObject alocacaoSalaObj = null;
             if (alocacaoSalaRaw.length() > 0) {
                 for (int i = 0; i < alocacaoSalaRaw.length(); i++) {
                     Gson gson = new Gson();
@@ -107,7 +123,7 @@ public class AgendamentoActivity extends AppCompatActivity {
                     AlocacaoSala alocacaoSala = gson.fromJson(gsonObj, AlocacaoSala.class);
                     listaSalas.add(alocacaoSala);
                 }
-              }
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -151,7 +167,24 @@ public class AgendamentoActivity extends AppCompatActivity {
                 });
             }
         });
-
-
-        }
     }
+    @Override
+    public boolean onNavigationItemSelected (@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.nav_logout:
+                SharedPreferences.Editor editorUser = getSharedPreferences(LoginActivity.USER_PREFERENCE, MODE_PRIVATE).edit();
+                editorUser.clear();
+                editorUser.apply();
+                Intent intent = new Intent(AgendamentoActivity.this, LoginActivity.class);
+                AgendamentoActivity.this.startActivity(intent);
+        }
+        return true;
+    }
+    @Override
+    public void onBackPressed() {
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else
+            super.onBackPressed();
+    }
+}

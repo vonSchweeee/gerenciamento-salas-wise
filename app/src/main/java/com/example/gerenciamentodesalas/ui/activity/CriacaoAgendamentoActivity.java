@@ -3,19 +3,27 @@ package com.example.gerenciamentodesalas.ui.activity;
 import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.example.gerenciamentodesalas.R;
 import com.example.gerenciamentodesalas.service.post.HttpServiceNovaAlocacao;
+import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.text.ParseException;
@@ -23,7 +31,8 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
-public class CriacaoAgendamentoActivity extends AppCompatActivity {
+public class CriacaoAgendamentoActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+    private DrawerLayout drawer;
     Boolean inicioAlterado = false;
     Boolean fimAlterado = false;
     Date horaInicio;
@@ -34,6 +43,14 @@ public class CriacaoAgendamentoActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_criacao_agendamento);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        drawer = findViewById(R.id.drawer_layout);
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
         Resources resources = getResources();
         Intent intente = getIntent();
         final ImageView imgViewInicio = findViewById(R.id.imageViewHoraInicio);
@@ -49,7 +66,7 @@ public class CriacaoAgendamentoActivity extends AppCompatActivity {
         final int idUsuario = intente.getExtras().getInt("idUsuario");
         final int idSala = intente.getExtras().getInt("idSala");
         final String ip = resources.getString(R.string.ip);
-        final Intent intent = new Intent(CriacaoAgendamentoActivity.this, AgendamentoActivity.class);
+        final Intent intent = new Intent(CriacaoAgendamentoActivity.this, CalendarioAgendamentoActivity.class);
         try {
             data = formatoDataSql.format(formatoDataBr.parse(intente.getExtras().getString("data")));
         } catch (ParseException e) {
@@ -167,5 +184,26 @@ public class CriacaoAgendamentoActivity extends AppCompatActivity {
             }
         });
 
+    }
+    @Override
+    public boolean onNavigationItemSelected (@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.nav_logout:
+                SharedPreferences.Editor editorUser = getSharedPreferences(LoginActivity.USER_PREFERENCE, MODE_PRIVATE).edit();
+                editorUser.clear();
+                editorUser.apply();
+                Intent intent = new Intent(CriacaoAgendamentoActivity.this, LoginActivity.class);
+                CriacaoAgendamentoActivity.this.startActivity(intent);
+        }
+
+        return true;
+    }
+    @Override
+    public void onBackPressed() {
+        if(drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        }
+        else
+            super.onBackPressed();
     }
 }
