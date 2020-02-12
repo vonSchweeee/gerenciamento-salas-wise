@@ -1,5 +1,6 @@
 package com.example.gerenciamentodesalas.ui.activity;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
@@ -12,6 +13,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
@@ -40,7 +42,7 @@ import java.util.List;
 
 public class AgendamentoActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     private DrawerLayout drawer;
-
+    AlertDialog.Builder builder;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,6 +55,14 @@ public class AgendamentoActivity extends AppCompatActivity implements Navigation
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
+        View headerView = navigationView.getHeaderView(0);
+        TextView navNome =  headerView.findViewById(R.id.nav_usuario);
+        TextView navOrg = headerView.findViewById(R.id.nav_org);
+        TextView navEmail = headerView.findViewById(R.id.nav_email);
+        SharedPreferences sp = getSharedPreferences(LoginActivity.USER_PREFERENCE, MODE_PRIVATE);
+        navNome.setText(sp.getString("nome", null));
+        navOrg.setText(sp.getString("organizacao", null));
+        navEmail.setText(sp.getString("email", null));
         Resources resources = getResources();
         final FloatingActionButton fabAddAlocacao = findViewById(R.id.fabAddAlocacao);
         final FloatingActionButton fabRemAlocacao = findViewById(R.id.fabRemAlocacao);
@@ -73,7 +83,8 @@ public class AgendamentoActivity extends AppCompatActivity implements Navigation
         Date dataFim = dtPlusOne.toDate();
         String fimDiaEscolhido = formatoData.format(dataFim);
         String dataStr = formatoData.format(dataRaw);
-        //textViewSala.setText(sala);
+        final TextView textSala = findViewById(R.id.textNomeSala);
+        textSala.setText(sala);
         textViewData.setText(data);
         String retorno = null;
         final FileWritterService fileWritterService = new FileWritterService();
@@ -140,8 +151,10 @@ public class AgendamentoActivity extends AppCompatActivity implements Navigation
         }
         final int finalIdSala = Integer.parseInt(idSala);
         final int finalIdUsuario = idUsuario;
+        builder = new AlertDialog.Builder(AgendamentoActivity.this);
         fabAddAlocacao.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+
                 intentCriacaoAgendamento.putExtra("data", data);
                 intentCriacaoAgendamento.putExtra("idSala", finalIdSala);
                 intentCriacaoAgendamento.putExtra("idUsuario", finalIdUsuario);
@@ -151,6 +164,14 @@ public class AgendamentoActivity extends AppCompatActivity implements Navigation
         final String finalJsonAlocacoesStr = jsonAlocacoesStr;
         fabRemAlocacao.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+                builder.setMessage("Selecione uma alocação para desagendar").setTitle("Remover alocação");
+                builder.setNeutralButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.dismiss();
+                    }
+                });
+                AlertDialog dialog = builder.create();
+                dialog.show();
                 listaDeAlocacao.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {

@@ -51,6 +51,14 @@ public class CriacaoAgendamentoActivity extends AppCompatActivity implements Nav
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
+        SharedPreferences sp = getSharedPreferences(LoginActivity.USER_PREFERENCE, MODE_PRIVATE);
+        View headerView = navigationView.getHeaderView(0);
+        TextView navNome =  headerView.findViewById(R.id.nav_usuario);
+        TextView navOrg = headerView.findViewById(R.id.nav_org);
+        TextView navEmail = headerView.findViewById(R.id.nav_email);
+        navNome.setText(sp.getString("nome", null));
+        navOrg.setText(sp.getString("organizacao", null));
+        navEmail.setText(sp.getString("email", null));
         Resources resources = getResources();
         Intent intente = getIntent();
         final ImageView imgViewInicio = findViewById(R.id.imageViewHoraInicio);
@@ -144,7 +152,7 @@ public class CriacaoAgendamentoActivity extends AppCompatActivity implements Nav
                                     CriacaoAgendamentoActivity.this.startActivity(intent);
                                 }
                             });
-                            builder.setNegativeButton("OK", new DialogInterface.OnClickListener() {
+                            builder.setNeutralButton("OK", new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int id) {
                                     dialog.dismiss();
                                 }

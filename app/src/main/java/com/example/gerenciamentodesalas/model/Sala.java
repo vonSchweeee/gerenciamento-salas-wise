@@ -18,8 +18,9 @@ public class Sala {
     private final boolean ativo;
     private final Date dataCriacao;
     private final Date dataAlteracao;
+    private final String urlImagem;
 
-    public Sala (int id, Organizacao idOrganizacao, String nome, int quantidadePessoasSentadas, boolean possuiMultimidia, boolean possuiAC, BigDecimal areaDaSala, String localizacao, Double latitude, Double longitude, boolean ativo, Date dataCriacao, Date dataAlteracao) {
+    public Sala (int id, Organizacao idOrganizacao, String nome, int quantidadePessoasSentadas, boolean possuiMultimidia, boolean possuiAC, BigDecimal areaDaSala, String localizacao, Double latitude, Double longitude, boolean ativo, Date dataCriacao, Date dataAlteracao, String urlImagem) {
         this.id = id;
         this.idOrganizacao = idOrganizacao;
         this.nome = nome;
@@ -33,6 +34,7 @@ public class Sala {
         this.ativo = ativo;
         this.dataCriacao = dataCriacao;
         this.dataAlteracao = dataAlteracao;
+        this.urlImagem = urlImagem;
     }
 
     public int getId() {
@@ -85,5 +87,9 @@ public class Sala {
 
     public Date getDataAlteracao() {
         return dataAlteracao;
+    }
+
+    public String getUrlImagem() {
+        return urlImagem;
     }
 }

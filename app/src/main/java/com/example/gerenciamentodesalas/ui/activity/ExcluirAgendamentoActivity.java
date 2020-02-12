@@ -46,6 +46,14 @@ public class ExcluirAgendamentoActivity extends AppCompatActivity implements Nav
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
+        SharedPreferences sp = getSharedPreferences(LoginActivity.USER_PREFERENCE, MODE_PRIVATE);
+        View headerView = navigationView.getHeaderView(0);
+        TextView navNome =  headerView.findViewById(R.id.nav_usuario);
+        TextView navOrg = headerView.findViewById(R.id.nav_org);
+        TextView navEmail = headerView.findViewById(R.id.nav_email);
+        navNome.setText(sp.getString("nome", null));
+        navOrg.setText(sp.getString("organizacao", null));
+        navEmail.setText(sp.getString("email", null));
         final TextView textInicio = findViewById(R.id.textInicioExcluir);
         final TextView textFim = findViewById(R.id.textFimExcluir);
         final TextInputEditText textDescricao = findViewById(R.id.inputDescricaoExcluir);

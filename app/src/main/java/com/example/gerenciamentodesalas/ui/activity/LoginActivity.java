@@ -101,7 +101,8 @@ public class LoginActivity extends AppCompatActivity {
                                 editorUser.putString("email", email);
                                 editorUser.putString("senha", password);
                                 editorUser.putString("nome", nomeUsuario);
-                                editorUser.commit();
+                                editorUser.putString("organizacao", nomeOrganizacao);
+                                editorUser.apply();
                                 builder.setMessage("Login efetuado com sucesso!").setTitle("Sucesso!");
                                 builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int id) {

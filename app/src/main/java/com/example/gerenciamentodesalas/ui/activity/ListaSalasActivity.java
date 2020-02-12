@@ -1,6 +1,5 @@
 package com.example.gerenciamentodesalas.ui.activity;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
@@ -29,17 +28,26 @@ import com.google.android.material.navigation.NavigationView;
 import java.util.List;
 
 
-public class ListaSalasActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener  {
+public class ListaSalasActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     private DrawerLayout drawer;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lista_salas);
+        SharedPreferences sp = getSharedPreferences(LoginActivity.USER_PREFERENCE, MODE_PRIVATE);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         drawer = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.nav_view);
-
+        View headerView = navigationView.getHeaderView(0);
+        TextView navNome = headerView.findViewById(R.id.nav_usuario);
+        TextView navOrg = headerView.findViewById(R.id.nav_org);
+        TextView navEmail = headerView.findViewById(R.id.nav_email);
+        String nomeUser = sp.getString("nome", null);
+        navNome.setText(nomeUser);
+        navOrg.setText(sp.getString("organizacao", null));
+        navEmail.setText(sp.getString("email", null));
         navigationView.setNavigationItemSelectedListener(this);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
@@ -47,9 +55,8 @@ public class ListaSalasActivity extends AppCompatActivity implements NavigationV
 
         final ListView listaDeSalas = findViewById(R.id.lista_salas_listview);
         final Intent intent = new Intent(ListaSalasActivity.this, CalendarioAgendamentoActivity.class);
-        SharedPreferences sp = getSharedPreferences(LoginActivity.USER_PREFERENCE, MODE_PRIVATE);
         Resources resources = getResources();
-        String ip=resources.getString(R.string.ip);
+        String ip = resources.getString(R.string.ip);
         String nomeOrganizacao = sp.getString("nomeOrganizacao", null);
         String idOrganizacao = sp.getString("idOrganizacao", null);
         String jsonSalasString = null;
@@ -61,9 +68,9 @@ public class ListaSalasActivity extends AppCompatActivity implements NavigationV
         }
         FileWritterService fileWritterService = new FileWritterService();
         boolean arquivoExiste = fileWritterService.arquivoExiste(ListaSalasActivity.this, nomeOrganizacao + "_salas.json");
-        if(arquivoExiste) {
+        if (arquivoExiste) {
             String jsonSalasLocalStr = fileWritterService.lerArquivo(ListaSalasActivity.this, nomeOrganizacao + "_salas.json");
-            if(! jsonSalasLocalStr.equals(jsonSalasString)) {
+            if (!jsonSalasLocalStr.equals(jsonSalasString)) {
                 boolean arquivoDeletado = fileWritterService.arquivoDeletado(ListaSalasActivity.this, nomeOrganizacao + "_salas.json");
                 if (arquivoDeletado) {
                     boolean isFileCreated = fileWritterService.criarArquivo(ListaSalasActivity.this, nomeOrganizacao + "_salas.json", jsonSalasString);
@@ -96,8 +103,9 @@ public class ListaSalasActivity extends AppCompatActivity implements NavigationV
             }
         });
     }
+
     @Override
-    public boolean onNavigationItemSelected (@NonNull MenuItem item) {
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.nav_logout:
                 SharedPreferences.Editor editorUser = getSharedPreferences(LoginActivity.USER_PREFERENCE, MODE_PRIVATE).edit();
@@ -109,12 +117,12 @@ public class ListaSalasActivity extends AppCompatActivity implements NavigationV
 
         return true;
     }
+
     @Override
     public void onBackPressed() {
-        if(drawer.isDrawerOpen(GravityCompat.START)) {
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
-        }
-        else
+        } else
             super.onBackPressed();
     }
 
