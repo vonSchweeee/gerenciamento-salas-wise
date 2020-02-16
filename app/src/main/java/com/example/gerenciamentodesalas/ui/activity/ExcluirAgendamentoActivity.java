@@ -20,6 +20,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.gerenciamentodesalas.R;
+import com.example.gerenciamentodesalas.TinyDB;
+import com.example.gerenciamentodesalas.model.Usuario;
 import com.example.gerenciamentodesalas.service.delete.HttpServiceDeleteAlocacao;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.textfield.TextInputEditText;
@@ -34,10 +36,12 @@ import java.util.Date;
 public class ExcluirAgendamentoActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     private DrawerLayout drawer;
     AlertDialog.Builder builder;
+    TinyDB tinyDB;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_excluir_agendamento);
+        tinyDB = new TinyDB(getApplicationContext());
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         drawer = findViewById(R.id.drawer_layout);
@@ -51,9 +55,9 @@ public class ExcluirAgendamentoActivity extends AppCompatActivity implements Nav
         TextView navNome =  headerView.findViewById(R.id.nav_usuario);
         TextView navOrg = headerView.findViewById(R.id.nav_org);
         TextView navEmail = headerView.findViewById(R.id.nav_email);
-        navNome.setText(sp.getString("nome", null));
-        navOrg.setText(sp.getString("organizacao", null));
-        navEmail.setText(sp.getString("email", null));
+        navNome.setText(tinyDB.getObject("usuario", Usuario.class).getNome());
+        navOrg.setText(tinyDB.getObject("usuario", Usuario.class).getIdOrganizacao().getNome());
+        navEmail.setText(tinyDB.getObject("usuario", Usuario.class).getEmail());
         final TextView textInicio = findViewById(R.id.textInicioExcluir);
         final TextView textFim = findViewById(R.id.textFimExcluir);
         final TextInputEditText textDescricao = findViewById(R.id.inputDescricaoExcluir);

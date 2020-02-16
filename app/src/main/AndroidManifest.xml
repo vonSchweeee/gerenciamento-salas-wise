@@ -12,19 +12,32 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".ui.activity.ExcluirAgendamentoActivity" android:theme="@style/AppTheme.NoActionBar"/>
-        <activity android:name=".ui.activity.CriacaoAgendamentoActivity" android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".ui.activity.LoginActivity">
+        <activity android:name=".ui.activity.LoaginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ui.activity.AgendamentoActivity"  android:theme="@style/AppTheme.NoActionBar"/>
-        <activity android:name=".ui.activity.ListaSalasActivity" android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".ui.activity.RegistroActivity" android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".ui.activity.CalendarioAgendamentoActivity" android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".ui.activity.ExcluirAgendamentoActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".ui.activity.CriacaoAgendamentoActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".ui.activity.LoginActivity"/>
+        <activity
+            android:name=".ui.activity.AgendamentoActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".ui.activity.ListaSalasActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".ui.activity.RegistroActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".ui.activity.CalendarioAgendamentoActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
     </application>
 
 </manifest>

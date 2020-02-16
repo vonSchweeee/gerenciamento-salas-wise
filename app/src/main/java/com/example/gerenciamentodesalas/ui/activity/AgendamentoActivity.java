@@ -20,7 +20,9 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.example.gerenciamentodesalas.R;
+import com.example.gerenciamentodesalas.TinyDB;
 import com.example.gerenciamentodesalas.model.AlocacaoSala;
+import com.example.gerenciamentodesalas.model.Usuario;
 import com.example.gerenciamentodesalas.service.FileWritterService;
 import com.example.gerenciamentodesalas.service.get.HttpServiceGetAlocacoesData;
 import com.example.gerenciamentodesalas.ui.adapter.AgendamentoAdapter;
@@ -43,10 +45,12 @@ import java.util.List;
 public class AgendamentoActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     private DrawerLayout drawer;
     AlertDialog.Builder builder;
+    TinyDB tinyDB;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_agendamento);
+        tinyDB = new TinyDB(getApplicationContext());
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         drawer = findViewById(R.id.drawer_layout);
@@ -56,13 +60,13 @@ public class AgendamentoActivity extends AppCompatActivity implements Navigation
         drawer.addDrawerListener(toggle);
         toggle.syncState();
         View headerView = navigationView.getHeaderView(0);
+        Usuario usuario = tinyDB.getObject("usuario", Usuario.class);
         TextView navNome =  headerView.findViewById(R.id.nav_usuario);
         TextView navOrg = headerView.findViewById(R.id.nav_org);
         TextView navEmail = headerView.findViewById(R.id.nav_email);
-        SharedPreferences sp = getSharedPreferences(LoginActivity.USER_PREFERENCE, MODE_PRIVATE);
-        navNome.setText(sp.getString("nome", null));
-        navOrg.setText(sp.getString("organizacao", null));
-        navEmail.setText(sp.getString("email", null));
+        navNome.setText(usuario.getNome());
+        navOrg.setText(usuario.getIdOrganizacao().getNome());
+        navEmail.setText(usuario.getEmail());
         Resources resources = getResources();
         final FloatingActionButton fabAddAlocacao = findViewById(R.id.fabAddAlocacao);
         final FloatingActionButton fabRemAlocacao = findViewById(R.id.fabRemAlocacao);
@@ -77,7 +81,7 @@ public class AgendamentoActivity extends AppCompatActivity implements Navigation
         String sala = intent.getExtras().getString("salaEscolhida");
         final String data = intent.getExtras().getString("dataEscolhida");
         Date dataRaw = (Date) intent.getSerializableExtra("dataFormatadaEscolhida");
-        String jsonSalasStr = intent.getExtras().getString("jsonSalas");
+        String jsonSalasStr = tinyDB.getString("jsonSalasStr");
         DateTime dtOrg = new DateTime(dataRaw);
         DateTime dtPlusOne = dtOrg.plusDays(1);
         Date dataFim = dtPlusOne.toDate();
@@ -141,23 +145,15 @@ public class AgendamentoActivity extends AppCompatActivity implements Navigation
 
         final ListView listaDeAlocacao = findViewById(R.id.lista_alocacao_listview);
         listaDeAlocacao.setAdapter(new AgendamentoAdapter(listaSalas, this));
-        JSONObject jsonUsuario;
-        int idUsuario = 0;
-        try {
-            jsonUsuario = new JSONObject(fileWritterService.lerArquivo(AgendamentoActivity.this, "usuariologado.json"));
-            idUsuario = jsonUsuario.getInt("id");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
         final int finalIdSala = Integer.parseInt(idSala);
-        final int finalIdUsuario = idUsuario;
+        final int idUsuario = usuario.getId();
         builder = new AlertDialog.Builder(AgendamentoActivity.this);
         fabAddAlocacao.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
 
                 intentCriacaoAgendamento.putExtra("data", data);
                 intentCriacaoAgendamento.putExtra("idSala", finalIdSala);
-                intentCriacaoAgendamento.putExtra("idUsuario", finalIdUsuario);
+                intentCriacaoAgendamento.putExtra("idUsuario", idUsuario);
                 AgendamentoActivity.this.startActivity(intentCriacaoAgendamento);
             }
         });

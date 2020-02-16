@@ -1,13 +1,13 @@
 package com.example.gerenciamentodesalas.ui.activity;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -17,105 +17,144 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import com.airbnb.lottie.LottieAnimationView;
+import com.airbnb.lottie.LottieComposition;
+import com.airbnb.lottie.LottieCompositionFactory;
+import com.airbnb.lottie.LottieListener;
+import com.airbnb.lottie.LottieResult;
+import com.airbnb.lottie.LottieTask;
 import com.example.gerenciamentodesalas.R;
+import com.example.gerenciamentodesalas.TinyDB;
 import com.example.gerenciamentodesalas.dao.SalasDAO;
+import com.example.gerenciamentodesalas.model.Constants;
+import com.example.gerenciamentodesalas.model.Event;
 import com.example.gerenciamentodesalas.model.Sala;
+import com.example.gerenciamentodesalas.model.Usuario;
 import com.example.gerenciamentodesalas.service.FileWritterService;
-import com.example.gerenciamentodesalas.service.get.HttpServiceGetSalas;
+import com.example.gerenciamentodesalas.service.HttpRequest;
 import com.example.gerenciamentodesalas.ui.adapter.ListaSalasAdapter;
 import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.snackbar.Snackbar;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class ListaSalasActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     private DrawerLayout drawer;
+    TinyDB tinyDB;
+    String jsonSalasString, nomeOrganizacao, idOrganizacao;
+    ListView listaDeSalas;
+    TextView textLoading;
+    ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lista_salas);
-        SharedPreferences sp = getSharedPreferences(LoginActivity.USER_PREFERENCE, MODE_PRIVATE);
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        drawer = findViewById(R.id.drawer_layout);
+        tinyDB = new TinyDB(getApplicationContext());
+        progressBar = findViewById(R.id.progressBar);
         NavigationView navigationView = findViewById(R.id.nav_view);
         View headerView = navigationView.getHeaderView(0);
-        TextView navNome = headerView.findViewById(R.id.nav_usuario);
-        TextView navOrg = headerView.findViewById(R.id.nav_org);
-        TextView navEmail = headerView.findViewById(R.id.nav_email);
-        String nomeUser = sp.getString("nome", null);
-        navNome.setText(nomeUser);
-        navOrg.setText(sp.getString("organizacao", null));
-        navEmail.setText(sp.getString("email", null));
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        textLoading = findViewById(R.id.textViewLoadingSalas);
+        drawer = findViewById(R.id.drawer_layout);
         navigationView.setNavigationItemSelectedListener(this);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
+        TextView navNome = headerView.findViewById(R.id.nav_usuario);
+        TextView navOrg = headerView.findViewById(R.id.nav_org);
+        TextView navEmail = headerView.findViewById(R.id.nav_email);
+        String nomeUser = tinyDB.getObject("usuario", Usuario.class).getNome();
+        navNome.setText(nomeUser);
+        navOrg.setText(tinyDB.getObject("usuario", Usuario.class).getIdOrganizacao().getNome());
+        navEmail.setText(tinyDB.getObject("usuario", Usuario.class).getEmail());
         toggle.syncState();
-
-        final ListView listaDeSalas = findViewById(R.id.lista_salas_listview);
-        final Intent intent = new Intent(ListaSalasActivity.this, CalendarioAgendamentoActivity.class);
+        listaDeSalas = findViewById(R.id.lista_salas_listview);
         Resources resources = getResources();
-        String ip = resources.getString(R.string.ip);
-        String nomeOrganizacao = sp.getString("nomeOrganizacao", null);
-        String idOrganizacao = sp.getString("idOrganizacao", null);
-        String jsonSalasString = null;
+        String url = resources.getString(R.string.ip);
+        Usuario usuario = tinyDB.getObject("usuario", Usuario.class);
+        nomeOrganizacao = tinyDB.getString(usuario.getIdOrganizacao().getNome());
+        int idOrg = usuario.getIdOrganizacao().getId();
+        idOrganizacao =  String.valueOf(idOrg);
+
         try {
-            jsonSalasString = new HttpServiceGetSalas(idOrganizacao, ip).execute().get();
-            intent.putExtra("jsonSalas", jsonSalasString);
+            pegarSalas(idOrganizacao, url);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        FileWritterService fileWritterService = new FileWritterService();
-        boolean arquivoExiste = fileWritterService.arquivoExiste(ListaSalasActivity.this, nomeOrganizacao + "_salas.json");
-        if (arquivoExiste) {
-            String jsonSalasLocalStr = fileWritterService.lerArquivo(ListaSalasActivity.this, nomeOrganizacao + "_salas.json");
-            if (!jsonSalasLocalStr.equals(jsonSalasString)) {
-                boolean arquivoDeletado = fileWritterService.arquivoDeletado(ListaSalasActivity.this, nomeOrganizacao + "_salas.json");
-                if (arquivoDeletado) {
-                    boolean isFileCreated = fileWritterService.criarArquivo(ListaSalasActivity.this, nomeOrganizacao + "_salas.json", jsonSalasString);
-                    if (isFileCreated) {
-                        System.out.println("JSON das Salas criado com sucesso.");
-                    } else {
-                        System.out.println("Falha ao atualizar o JSON das salas.");
-                    }
-                }
-            }
-        } else {
-            boolean isFileCreated = fileWritterService.criarArquivo(ListaSalasActivity.this, nomeOrganizacao + "_salas.json", jsonSalasString);
-            if (isFileCreated) {
-                System.out.println("JSON das Salas criado com sucesso.");
-            } else {
-                System.out.println("Falha ao criar o JSON das salas.");
-            }
-        }
-        List<Sala> salas = new SalasDAO().lista(nomeOrganizacao, this);
-        listaDeSalas.setAdapter(new ListaSalasAdapter(salas, ListaSalasActivity.this));
-        listaDeSalas.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                TextView salaEscolha = view.findViewById(R.id.textViewSalas);
-                Object listItem = listaDeSalas.getItemAtPosition(position);
-                String salaEscolhida = salaEscolha.getText().toString();
-                intent.putExtra("position", position);
-                intent.putExtra("sala", salaEscolhida);
-                ListaSalasActivity.this.startActivity(intent);
-            }
-        });
     }
-
+    public void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
+    public void onStop(){
+        super.onStop();
+        EventBus.getDefault().unregister(this);
+    }
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.nav_logout:
-                SharedPreferences.Editor editorUser = getSharedPreferences(LoginActivity.USER_PREFERENCE, MODE_PRIVATE).edit();
-                editorUser.clear();
-                editorUser.apply();
+                tinyDB.clear();
                 Intent intent = new Intent(ListaSalasActivity.this, LoginActivity.class);
                 ListaSalasActivity.this.startActivity(intent);
+                ListaSalasActivity.this.finish();
         }
 
         return true;
+    }
+    public void pegarSalas(String idOrganizacao, String url) {
+        System.out.println("pegandosalas");
+        Map<String, String> params = new HashMap<String, String>();
+        Resources resources = getResources();
+        String auth = resources.getString(R.string.auth);
+        params.put("authorization", auth);
+        params.put("idOrganizacao", idOrganizacao);
+        new HttpRequest(ListaSalasActivity.this, params, url + "sala/getsalas", "GET", "getSalas").doRequest();
+        System.out.println("salaspegadas");
+    }
+
+    @Subscribe
+    public void customEventReceived(Event event){
+        if (event.getEventName().equals("getSalas" + Constants.eventSuccessLabel)) {
+            final Intent intent = new Intent(ListaSalasActivity.this, CalendarioAgendamentoActivity.class);
+            jsonSalasString = event.getEventMsg();
+            System.out.println(jsonSalasString);
+            tinyDB.putString("jsonSalasStr", jsonSalasString);
+            textLoading.setVisibility(View.GONE);
+            progressBar.setVisibility(View.GONE);
+            List<Sala> salas = new SalasDAO().lista(this);
+            listaDeSalas.setAdapter(new ListaSalasAdapter(salas, ListaSalasActivity.this));
+            listaDeSalas.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    TextView salaEscolha = view.findViewById(R.id.textViewSalas);
+                    Object listItem = listaDeSalas.getItemAtPosition(position);
+                    String salaEscolhida = salaEscolha.getText().toString();
+                    intent.putExtra("position", position);
+                    intent.putExtra("sala", salaEscolhida);
+                    ListaSalasActivity.this.startActivity(intent);
+                }
+            });
+        }
+        else if (event.getEventName().startsWith("getSalas" + Constants.eventErrorLabel)) {
+            Snackbar snackbar = Snackbar
+                    .make(getCurrentFocus(), "Falha ao carregar as salas", Snackbar.LENGTH_INDEFINITE)
+                    .setAction("Tentar novamente", new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                        }
+                    });
+
+            snackbar.show();
+        }
+
     }
 
     @Override
@@ -125,5 +164,6 @@ public class ListaSalasActivity extends AppCompatActivity implements NavigationV
         } else
             super.onBackPressed();
     }
+
 
 }

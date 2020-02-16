@@ -21,6 +21,8 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.example.gerenciamentodesalas.R;
+import com.example.gerenciamentodesalas.TinyDB;
+import com.example.gerenciamentodesalas.model.Usuario;
 import com.google.android.material.navigation.NavigationView;
 
 import org.joda.time.LocalDateTime;
@@ -38,11 +40,13 @@ public class CalendarioAgendamentoActivity extends AppCompatActivity implements 
     int ano, mes, dia;
     private static final String TAG = "CalendarioActivity";
     private String dataEscolhidaRaw;
+    TinyDB tinyDB;
     AlertDialog.Builder builder;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_calendario_agendamento);
+        tinyDB = new TinyDB(getApplicationContext());
         final SimpleDateFormat formatoData = new SimpleDateFormat("yyyy-MM-dd");
         final SimpleDateFormat formatoLocalData = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
         final SimpleDateFormat formatoBrData = new SimpleDateFormat("dd/MM/yyyy");
@@ -64,14 +68,13 @@ public class CalendarioAgendamentoActivity extends AppCompatActivity implements 
         drawer.addDrawerListener(toggle);
         toggle.syncState();
         navigationView.setNavigationItemSelectedListener(this);
-        SharedPreferences sp = getSharedPreferences(LoginActivity.USER_PREFERENCE, MODE_PRIVATE);
         View headerView = navigationView.getHeaderView(0);
         TextView navNome =  headerView.findViewById(R.id.nav_usuario);
         TextView navOrg = headerView.findViewById(R.id.nav_org);
         TextView navEmail = headerView.findViewById(R.id.nav_email);
-        navNome.setText(sp.getString("nome", null));
-        navOrg.setText(sp.getString("organizacao", null));
-        navEmail.setText(sp.getString("email", null));
+        navNome.setText(tinyDB.getObject("usuario", Usuario.class).getNome());
+        navOrg.setText(tinyDB.getObject("usuario", Usuario.class).getIdOrganizacao().getNome());
+        navEmail.setText(tinyDB.getObject("usuario", Usuario.class).getEmail());
 
         Button btn = findViewById(R.id.btn);
         calendario = findViewById(R.id.calendario);
@@ -79,7 +82,7 @@ public class CalendarioAgendamentoActivity extends AppCompatActivity implements 
         Intent intent = getIntent();
         final String jsonSalas = intent.getExtras().getString("jsonSalas");
         final String salaEscolhida = intent.getExtras().getString("sala");
-        textViewSala.setText(salaEscolhida.toString());
+        textViewSala.setText(salaEscolhida);
         calendario.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
             @Override
             public void onSelectedDayChange(CalendarView calendarView, int year, int month, int dayOfMonth) {
@@ -138,9 +141,7 @@ public class CalendarioAgendamentoActivity extends AppCompatActivity implements 
     public boolean onNavigationItemSelected (@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.nav_logout:
-                SharedPreferences.Editor editorUser = getSharedPreferences(LoginActivity.USER_PREFERENCE, MODE_PRIVATE).edit();
-                editorUser.clear();
-                editorUser.apply();
+                tinyDB.clear();
                 Intent intent = new Intent(CalendarioAgendamentoActivity.this, LoginActivity.class);
                 CalendarioAgendamentoActivity.this.startActivity(intent);
         }

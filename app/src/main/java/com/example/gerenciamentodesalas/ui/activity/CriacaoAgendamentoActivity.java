@@ -22,6 +22,8 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.example.gerenciamentodesalas.R;
+import com.example.gerenciamentodesalas.TinyDB;
+import com.example.gerenciamentodesalas.model.Usuario;
 import com.example.gerenciamentodesalas.service.post.HttpServiceNovaAlocacao;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.textfield.TextInputEditText;
@@ -39,11 +41,14 @@ public class CriacaoAgendamentoActivity extends AppCompatActivity implements Nav
     Date horaFim;
     String data;
     AlertDialog.Builder builder;
+    TinyDB tinyDB;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_criacao_agendamento);
         Toolbar toolbar = findViewById(R.id.toolbar);
+        tinyDB = new TinyDB(getApplicationContext());
         setSupportActionBar(toolbar);
         drawer = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.nav_view);
@@ -51,14 +56,13 @@ public class CriacaoAgendamentoActivity extends AppCompatActivity implements Nav
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
-        SharedPreferences sp = getSharedPreferences(LoginActivity.USER_PREFERENCE, MODE_PRIVATE);
         View headerView = navigationView.getHeaderView(0);
         TextView navNome =  headerView.findViewById(R.id.nav_usuario);
         TextView navOrg = headerView.findViewById(R.id.nav_org);
         TextView navEmail = headerView.findViewById(R.id.nav_email);
-        navNome.setText(sp.getString("nome", null));
-        navOrg.setText(sp.getString("organizacao", null));
-        navEmail.setText(sp.getString("email", null));
+        navNome.setText(tinyDB.getObject("usuario", Usuario.class).getNome());
+        navOrg.setText(tinyDB.getObject("usuario", Usuario.class).getIdOrganizacao().getNome());
+        navEmail.setText(tinyDB.getObject("usuario", Usuario.class).getEmail());
         Resources resources = getResources();
         Intent intente = getIntent();
         final ImageView imgViewInicio = findViewById(R.id.imageViewHoraInicio);
@@ -83,9 +87,9 @@ public class CriacaoAgendamentoActivity extends AppCompatActivity implements Nav
         imgViewInicio.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final Calendar mcurrentTime = Calendar.getInstance();
-                int hour = mcurrentTime.get(Calendar.HOUR_OF_DAY);
-                int minute = mcurrentTime.get(Calendar.MINUTE);
+                final Calendar tempoAgora = Calendar.getInstance();
+                int hour = tempoAgora.get(Calendar.HOUR_OF_DAY);
+                int minute = tempoAgora.get(Calendar.MINUTE);
                 TimePickerDialog mTimePicker;
                 mTimePicker = new TimePickerDialog(CriacaoAgendamentoActivity.this, new TimePickerDialog.OnTimeSetListener() {
                     @Override
@@ -109,11 +113,11 @@ public class CriacaoAgendamentoActivity extends AppCompatActivity implements Nav
         imgViewFim.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final Calendar mcurrentTime = Calendar.getInstance();
-                int hour = mcurrentTime.get(Calendar.HOUR_OF_DAY);
-                int minute = mcurrentTime.get(Calendar.MINUTE);
-                TimePickerDialog mTimePicker;
-                mTimePicker = new TimePickerDialog(CriacaoAgendamentoActivity.this, new TimePickerDialog.OnTimeSetListener() {
+                final Calendar horaAtual = Calendar.getInstance();
+                int hour = horaAtual.get(Calendar.HOUR_OF_DAY);
+                int minute = horaAtual.get(Calendar.MINUTE);
+                TimePickerDialog timePicker;
+                timePicker = new TimePickerDialog(CriacaoAgendamentoActivity.this, new TimePickerDialog.OnTimeSetListener() {
                     @Override
                     public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
                         Date horaEscolhida = null;
@@ -128,15 +132,15 @@ public class CriacaoAgendamentoActivity extends AppCompatActivity implements Nav
                         fimAlterado = true;
                     }
                 }, hour, minute, true);
-                mTimePicker.setTitle("Escolha o horário");
-                mTimePicker.show();
+                timePicker.setTitle("Escolha o horário");
+                timePicker.show();
             }
         });
         btnConfirmar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 builder = new AlertDialog.Builder(CriacaoAgendamentoActivity.this);
-                if (inicioAlterado == true && fimAlterado == true) {
+                if (inicioAlterado && fimAlterado) {
                     if (horaInicio.before(horaFim)){
                         String descricao = textDescricao.getText().toString();
                         String resposta=null;

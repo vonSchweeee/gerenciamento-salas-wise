@@ -54,22 +54,27 @@ public class RegistroActivity extends AppCompatActivity {
                                 try {
                                     List<Organizacao> organizacoes = new HttpServiceVerificarDominio(dominio, ip).execute().get();
                                     Organizacao[] organizacoesItems = new Organizacao[organizacoes.size()];
-
                                     for(int i = 0; i < organizacoes.size() ; i++)
                                     {
                                         organizacoesItems[i] = organizacoes.get(i);
                                     }
-                                    if (organizacoes != null) {
+                                    if (organizacoes.size() > 0) {
                                         adapter = new SpinnerAdapter(RegistroActivity.this, android.R.layout.simple_spinner_item, organizacoesItems);
                                         spinnerEmpresa.setAdapter(adapter);
+                                        spinnerEmpresa.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                            @Override
+                                            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                                                String org = spinnerEmpresa.getSelectedItem().toString();
+
+                                            }
+                                        });
                                         textViewOrganizacao.setText(organizacoes.get(0).getNome() + " - " + organizacoes.get(0).getTipoOrganizacao() + " - " + organizacoes.get(0).getCEP());
                                         validacaoDominio = true;
-                                    } else {
-                                        textViewOrganizacao.setText("Domínio de e-mail inválido");
-                                        validacaoDominio = false;
                                     }
                                 } catch (Exception e) {
                                     e.printStackTrace();
+                                    textViewOrganizacao.setText("Domínio de e-mail inválido");
+                                    validacaoDominio = false;
                                 }
                             }
                         }
