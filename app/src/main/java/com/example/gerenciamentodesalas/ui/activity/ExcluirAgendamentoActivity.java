@@ -1,13 +1,5 @@
 package com.example.gerenciamentodesalas.ui.activity;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -16,22 +8,33 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.example.gerenciamentodesalas.R;
 import com.example.gerenciamentodesalas.TinyDB;
+import com.example.gerenciamentodesalas.model.AlocacaoSala;
+import com.example.gerenciamentodesalas.model.Constants;
+import com.example.gerenciamentodesalas.model.Event;
 import com.example.gerenciamentodesalas.model.Usuario;
-import com.example.gerenciamentodesalas.service.delete.HttpServiceDeleteAlocacao;
+import com.example.gerenciamentodesalas.service.HttpRequest;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.textfield.TextInputEditText;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ExcluirAgendamentoActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     private DrawerLayout drawer;
@@ -50,7 +53,6 @@ public class ExcluirAgendamentoActivity extends AppCompatActivity implements Nav
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
-        SharedPreferences sp = getSharedPreferences(LoginActivity.USER_PREFERENCE, MODE_PRIVATE);
         View headerView = navigationView.getHeaderView(0);
         TextView navNome =  headerView.findViewById(R.id.nav_usuario);
         TextView navOrg = headerView.findViewById(R.id.nav_org);
@@ -63,89 +65,112 @@ public class ExcluirAgendamentoActivity extends AppCompatActivity implements Nav
         final TextInputEditText textDescricao = findViewById(R.id.inputDescricaoExcluir);
         final Button btnExcluir = findViewById(R.id.btnConfirmarExcluir);
         final SimpleDateFormat formatoTempo = new SimpleDateFormat("HH:mm");
-        final SimpleDateFormat formatoDataSqlOriginal = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-        final Intent intentCalendarioAgendamento = new Intent (ExcluirAgendamentoActivity.this, CalendarioAgendamentoActivity.class);
-        Intent intent = getIntent();
-        JSONObject jsonAlocacaoSelecionada = null;
         Date dataHoraInicio = null;
         Date dataHoraFim = null;
         String descricao = null;
         String horaInicio = null;
         String horaFim = null;
+        AlocacaoSala alocacaoSelecionada = null;
         try {
-            jsonAlocacaoSelecionada = new JSONObject(intent.getExtras().getString("jsonAlocacaoSelecionada"));
-        } catch (JSONException e) {
+            alocacaoSelecionada = tinyDB.getObject("alocacaoSelecionada", AlocacaoSala.class);
+        } catch (Exception e) {
             e.printStackTrace();
         }
         try {
-            String dataHoraInicioStr = jsonAlocacaoSelecionada.getString("dataHoraInicio").replace("Z[UTC]", "");
-            String dataHoraFimStr = jsonAlocacaoSelecionada.getString("dataHoraFim").replace("Z[UTC]", "");
-            dataHoraInicio = formatoDataSqlOriginal.parse(dataHoraInicioStr);
-            dataHoraFim = formatoDataSqlOriginal.parse(dataHoraFimStr);
-            descricao = jsonAlocacaoSelecionada.getString("descricao");
+            dataHoraInicio = alocacaoSelecionada.getDataHoraInicio();
+            dataHoraFim = alocacaoSelecionada.getDataHoraFim();
+            descricao = alocacaoSelecionada.getDescricao();
             horaInicio = formatoTempo.format(dataHoraInicio);
             horaFim = formatoTempo.format(dataHoraFim);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         textInicio.setText(horaInicio);
         textFim.setText(horaFim);
         textDescricao.setText(descricao);
 
-        final JSONObject finalJsonAlocacaoSelecionada = jsonAlocacaoSelecionada;
+        final AlocacaoSala finalAlocacaoSelecionada = alocacaoSelecionada;
         btnExcluir.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String retorno=null;
                 try {
-                    builder = new AlertDialog.Builder(ExcluirAgendamentoActivity.this);
                     Resources resources = getResources();
-                    String ip = resources.getString(R.string.ip);
-                    String id = finalJsonAlocacaoSelecionada.getString("id");
-                    retorno = new HttpServiceDeleteAlocacao(ip, id).execute().get();
+                    String url = resources.getString(R.string.ip) + "alocacao/excluir";
+                    String id = String.valueOf(finalAlocacaoSelecionada.getId());
+                    DeletarAlocacao(url, id);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                if (retorno.equals("Alocação desativada com sucesso.")) {
-                    builder.setMessage("Alocação desativada com sucesso.").setTitle("Sucesso!");
-                    builder.setNeutralButton("OK", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
-                        }
-                    });
-                    builder.setPositiveButton("Retornar para alocações", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            ExcluirAgendamentoActivity.this.startActivity(intentCalendarioAgendamento);
-                        }
-                    });
-                    AlertDialog dialog = builder.create();
-                    dialog.show();
-                }
-                else {
-                    builder.setMessage(retorno).setTitle("Erro.");
-                    builder.setNeutralButton("OK", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
-                        }
-                    });
-                    AlertDialog dialog = builder.create();
-                    dialog.show();
-                }
             }
         });
+    }
+    public void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
+    public void onStop(){
+        super.onStop();
+        EventBus.getDefault().unregister(this);
+    }
+
+    public void DeletarAlocacao(String url, String id) {
+        Map<String, String> params = new HashMap<String, String>();
+        Resources resources = getResources();
+        String auth = resources.getString(R.string.auth);
+        params.put("id", id);
+        params.put("authorization", auth);
+        new HttpRequest(ExcluirAgendamentoActivity.this, params, url, "DELETE", "deleteAlocacao").doRequest();
+    }
+
+    @Subscribe
+    public void customEventReceived(Event event){
+        builder = new AlertDialog.Builder(ExcluirAgendamentoActivity.this);
+        if (event.getEventName().equals("deleteAlocacao" + Constants.eventSuccessLabel)) {
+            builder.setMessage("Alocação desativada com sucesso.").setTitle("Sucesso!");
+            builder.setNeutralButton("OK", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            });
+            builder.setPositiveButton("Retornar para alocações", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    ExcluirAgendamentoActivity.this.finish();
+                }
+            });
+            AlertDialog dialog = builder.create();
+            dialog.show();
+        }
+        else if (event.getEventName().equals("deleteAlocacao" + Constants.eventErrorLabel)) {
+            builder.setMessage(event.getEventMsg()).setTitle("Erro.");
+            builder.setNeutralButton("OK", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            });
+            AlertDialog dialog = builder.create();
+            dialog.show();
+        }
+        else if (event.getEventName().startsWith("deleteAlocacao" + Constants.eventErrorLabel)) {
+            builder.setMessage("Erro no servidor.").setTitle("Erro.");
+            builder.setNeutralButton("OK", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            });
+            AlertDialog dialog = builder.create();
+            dialog.show();
+        }
     }
     @Override
     public boolean onNavigationItemSelected (@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.nav_logout:
-                SharedPreferences.Editor editorUser = getSharedPreferences(LoginActivity.USER_PREFERENCE, MODE_PRIVATE).edit();
-                editorUser.clear();
-                editorUser.apply();
+                tinyDB.clear();
                 Intent intent = new Intent(ExcluirAgendamentoActivity.this, LoginActivity.class);
                 ExcluirAgendamentoActivity.this.startActivity(intent);
         }

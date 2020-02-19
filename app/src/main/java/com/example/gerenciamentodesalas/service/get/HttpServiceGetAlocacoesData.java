@@ -23,7 +23,7 @@ public class HttpServiceGetAlocacoesData extends AsyncTask<String, Void, String>
     @Override
     protected String doInBackground(String... strings) {
 
-        String urlWS = "http://" + ip + "/ReservaDeSala/rest/alocacao/getalocacoesbysaladata";
+        String urlWS = ip + "alocacao/getalocacoesbysaladata";
 
         String authorizationHeader = "secret";
         try {

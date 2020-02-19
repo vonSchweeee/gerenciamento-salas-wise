@@ -22,6 +22,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.example.gerenciamentodesalas.R;
 import com.example.gerenciamentodesalas.TinyDB;
+import com.example.gerenciamentodesalas.model.Sala;
 import com.example.gerenciamentodesalas.model.Usuario;
 import com.google.android.material.navigation.NavigationView;
 
@@ -80,9 +81,7 @@ public class CalendarioAgendamentoActivity extends AppCompatActivity implements 
         calendario = findViewById(R.id.calendario);
         final TextView textViewSala = findViewById(R.id.textViewSala);
         Intent intent = getIntent();
-        final String jsonSalas = intent.getExtras().getString("jsonSalas");
-        final String salaEscolhida = intent.getExtras().getString("sala");
-        textViewSala.setText(salaEscolhida);
+        textViewSala.setText(tinyDB.getObject("salaEscolhida", Sala.class).getNome());
         calendario.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
             @Override
             public void onSelectedDayChange(CalendarView calendarView, int year, int month, int dayOfMonth) {
@@ -112,15 +111,7 @@ public class CalendarioAgendamentoActivity extends AppCompatActivity implements 
                     String dataEscolhida;
                     dataEscolhida = textViewData.getText().toString();
                     Intent intent = new Intent(CalendarioAgendamentoActivity.this, AgendamentoActivity.class);
-                    intent.putExtra("dataEscolhida", dataEscolhida);
-                    intent.putExtra("salaEscolhida", salaEscolhida);
-                    try {
-                        Date dataEscolhidaFormatada = formatoData.parse(dataEscolhidaRaw);
-                        intent.putExtra("dataFormatadaEscolhida", dataEscolhidaFormatada);
-                    } catch (ParseException e) {
-                        e.printStackTrace();
-                    }
-                    intent.putExtra("jsonSalas", jsonSalas);
+                    tinyDB.putString("dataEscolhida", dataEscolhida);
                     CalendarioAgendamentoActivity.this.startActivity(intent);
                 }
                 else {

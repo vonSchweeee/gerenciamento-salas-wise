@@ -61,7 +61,6 @@ public class LoginActivity extends AppCompatActivity {
     String password;
     TinyDB tinyDB;
     LottieAnimationView viewLoading;
-    public static final String USER_PREFERENCE = "INFO_AUTO_LOGIN";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,7 +85,6 @@ public class LoginActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View view) {
                     tinyDB.remove("usuario");
-                    String tipoLogin = "manual";
                     viewLoading.setVisibility(View.VISIBLE);
                     btnLogin.setEnabled(false);
                     Resources resources = getResources();
@@ -95,7 +93,7 @@ public class LoginActivity extends AppCompatActivity {
                     password = viewSenha.getText().toString();
                     hideKeyboard(LoginActivity.this);
                     try {
-                        Login(ip, email, password, tipoLogin);
+                        Login(ip, email, password);
                     } catch (Exception e) {
                         e.printStackTrace();
                         builder.setMessage("Falha na conexão").setTitle("Erro");
@@ -114,14 +112,13 @@ public class LoginActivity extends AppCompatActivity {
 
 
 
-    public void Login (String ip, String email, String senha, String tipoLogin) {
+    public void Login (String ip, String email, String senha) {
         Map<String, String> params = new HashMap<String, String>();
-        params.put("authorization", "secret");
+        Resources resources = getResources();
+        params.put("authorization", resources.getString(R.string.auth));
         params.put("email", email);
         params.put("password", senha);
-        if (tipoLogin == "manual") {
-            new HttpRequest(getApplicationContext(), params, ip + "usuario/login/", "GET", "Login").doRequest();
-        }
+        new HttpRequest(getApplicationContext(), params, ip + "usuario/login/", "GET", "Login").doRequest();
     }
 
     public void onStart() {
@@ -136,15 +133,14 @@ public class LoginActivity extends AppCompatActivity {
     @Subscribe
     public void customEventReceived(Event event) {
         final Intent intent = new Intent(LoginActivity.this, ListaSalasActivity.class);
-        if (event.getEventName().equals("Login" + Constants.eventSuccessLabel)) {
+        if (event.getEventName().equals("Login" + Constants.eventSuccessLabel) || event.getEventStatusCode() == 200) {
                 try {
                     String usuarioJSONStr = event.getEventMsg();
                     JSONObject usuarioJSON = new JSONObject(usuarioJSONStr);
-                    usuarioJSON.getJSONObject("idOrganizacao");
                     String nomeOrganizacao = usuarioJSON.getJSONObject("idOrganizacao").getString("nome");
                     Gson gson = new Gson();
-                    System.out.println(usuarioJSONStr + "skabadabada");
                     Usuario usuario = gson.fromJson(usuarioJSONStr, Usuario.class);
+                    System.out.println(usuarioJSON.toString());
                     System.out.println(usuario.getEmail());
                     tinyDB.putObject("usuario", usuario);
                     tinyDB.putString("senha", viewSenha.getText().toString());
@@ -170,7 +166,7 @@ public class LoginActivity extends AppCompatActivity {
                 }
         }
         else if (event.getEventName().equals("Login" + Constants.eventErrorLabel)){
-            builder.setMessage("Falha na conexão." + "\r\n \r\n" + event.getEventMsg()).setTitle("Erro");
+            builder.setMessage("Falha na conexão." + "\r\nErro na comunicação com o servidor.").setTitle("Erro");
             builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
                     dialog.dismiss();
@@ -179,6 +175,18 @@ public class LoginActivity extends AppCompatActivity {
             AlertDialog dialog = builder.create();
             dialog.show();
         }
+        else if (event.getEventName().equals("Login" + Constants.eventErrorLabel)){
+            builder.setMessage("Falha na conexão." + "\r\nErro na comunicação com o servidor.").setTitle("Erro");
+            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    dialog.dismiss();
+                }
+            });
+            AlertDialog dialog = builder.create();
+            dialog.show();
+        }
+        btnLogin.setEnabled(true);
+        viewLoading.setVisibility(View.GONE);
     }
 
     public static void hideKeyboard(Activity activity) {

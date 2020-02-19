@@ -29,7 +29,7 @@ public class HttpServiceRegistrar extends AsyncTask<String, Void, String> {
     }
     @Override
     protected String doInBackground(String... strings) {
-        String urlWS = "http://" + ip + "/ReservaDeSala/rest/usuario/cadastro";
+        String urlWS =  ip + "usuario/cadastro";
 
         String authorizationHeader = "secret";
         try {

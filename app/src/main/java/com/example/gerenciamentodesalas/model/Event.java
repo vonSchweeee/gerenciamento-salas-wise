@@ -1,15 +1,29 @@
 package com.example.gerenciamentodesalas.model;
 
-public class Event {
-    String eventName;
-    String eventMsg;
+import androidx.annotation.Nullable;
 
+import com.android.volley.NetworkResponse;
+
+public class Event {
+    private String eventName;
+    private String eventMsg;
+    @Nullable  private int eventStatusCode;
     public Event() {
     }
 
-    public Event(String eventName, String eventMsg) {
+    public Event(String eventName, String eventMsg, @Nullable int eventStatusCode) {
         this.eventName = eventName;
         this.eventMsg = eventMsg;
+        this.eventStatusCode = eventStatusCode;
+    }
+
+    public int getEventStatusCode() {
+        return eventStatusCode;
+    }
+
+    public Event setEventStatusCode(int eventStatusCode) {
+        this.eventStatusCode = eventStatusCode;
+        return this;
     }
 
     public String getEventName() {

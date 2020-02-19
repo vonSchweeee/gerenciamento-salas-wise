@@ -54,15 +54,18 @@ public class LoaginActivity extends AppCompatActivity {
                     Login(ip, email, password);
                 } catch (Exception e) {
                     LoaginActivity.this.startActivity(intentLoginFalha);
+                    LoaginActivity.this.finish();
                     e.printStackTrace();
                 }
             }
             else {
                 LoaginActivity.this.startActivity(intentLoginFalha);
+                LoaginActivity.this.finish();
             }
         }
         catch (Exception e){
             LoaginActivity.this.startActivity(intentLoginFalha);
+            LoaginActivity.this.finish();
         }
     }
 

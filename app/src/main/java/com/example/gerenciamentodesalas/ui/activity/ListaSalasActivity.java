@@ -17,12 +17,6 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
-import com.airbnb.lottie.LottieAnimationView;
-import com.airbnb.lottie.LottieComposition;
-import com.airbnb.lottie.LottieCompositionFactory;
-import com.airbnb.lottie.LottieListener;
-import com.airbnb.lottie.LottieResult;
-import com.airbnb.lottie.LottieTask;
 import com.example.gerenciamentodesalas.R;
 import com.example.gerenciamentodesalas.TinyDB;
 import com.example.gerenciamentodesalas.dao.SalasDAO;
@@ -30,7 +24,6 @@ import com.example.gerenciamentodesalas.model.Constants;
 import com.example.gerenciamentodesalas.model.Event;
 import com.example.gerenciamentodesalas.model.Sala;
 import com.example.gerenciamentodesalas.model.Usuario;
-import com.example.gerenciamentodesalas.service.FileWritterService;
 import com.example.gerenciamentodesalas.service.HttpRequest;
 import com.example.gerenciamentodesalas.ui.adapter.ListaSalasAdapter;
 import com.google.android.material.navigation.NavigationView;
@@ -125,20 +118,18 @@ public class ListaSalasActivity extends AppCompatActivity implements NavigationV
         if (event.getEventName().equals("getSalas" + Constants.eventSuccessLabel)) {
             final Intent intent = new Intent(ListaSalasActivity.this, CalendarioAgendamentoActivity.class);
             jsonSalasString = event.getEventMsg();
-            System.out.println(jsonSalasString);
             tinyDB.putString("jsonSalasStr", jsonSalasString);
             textLoading.setVisibility(View.GONE);
             progressBar.setVisibility(View.GONE);
-            List<Sala> salas = new SalasDAO().lista(this);
+            final List<Sala> salas = new SalasDAO().lista(this);
             listaDeSalas.setAdapter(new ListaSalasAdapter(salas, ListaSalasActivity.this));
             listaDeSalas.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                     TextView salaEscolha = view.findViewById(R.id.textViewSalas);
-                    Object listItem = listaDeSalas.getItemAtPosition(position);
                     String salaEscolhida = salaEscolha.getText().toString();
-                    intent.putExtra("position", position);
-                    intent.putExtra("sala", salaEscolhida);
+                    Sala sala = salas.get(position);
+                    tinyDB.putObject("salaEscolhida", sala);
                     ListaSalasActivity.this.startActivity(intent);
                 }
             });

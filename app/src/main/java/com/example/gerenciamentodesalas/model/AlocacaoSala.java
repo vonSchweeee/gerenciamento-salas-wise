@@ -4,10 +4,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class AlocacaoSala {
-    private Sala sala;
     private final int id;
     private final Sala idSala;
-    private final String organizador;
+    private final int idUsuario;
     private final Date dataHoraInicio;
     private final Date dataHoraFim;
     private final String descricao;
@@ -15,10 +14,10 @@ public class AlocacaoSala {
     private final Date dataCriacao;
     private final Date dataAlteracao;
 
-    public AlocacaoSala(int id, Sala idSala, String organizador, Date dataHoraInicio, Date dataHoraFim, String descricao, Boolean ativo, Date dataCriacao, Date dataAlteracao) {
+    public AlocacaoSala(int id, Sala idSala, int idUsuario, Date dataHoraInicio, Date dataHoraFim, String descricao, Boolean ativo, Date dataCriacao, Date dataAlteracao) {
         this.id = id;
         this.idSala = idSala;
-        this.organizador = organizador;
+        this.idUsuario = idUsuario;
         this.dataHoraInicio = dataHoraInicio;
         this.dataHoraFim = dataHoraFim;
         this.descricao = descricao;
@@ -30,8 +29,8 @@ public class AlocacaoSala {
     public Sala getIdSala() {
         return idSala;
     }
-    public String getOrganizador() {
-        return organizador;
+    public int getIdUsuario() {
+        return idUsuario;
     }
     public Date getDataHoraInicio() {
         return dataHoraInicio;
