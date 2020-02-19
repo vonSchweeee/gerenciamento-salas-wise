@@ -3,52 +3,29 @@ package com.example.gerenciamentodesalas.ui.activity;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.res.Resources;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.airbnb.lottie.LottieAnimationView;
-import com.airbnb.lottie.LottieComposition;
-import com.airbnb.lottie.LottieCompositionFactory;
-import com.airbnb.lottie.LottieDrawable;
-import com.airbnb.lottie.LottieListener;
-import com.airbnb.lottie.LottieOnCompositionLoadedListener;
-import com.airbnb.lottie.LottieTask;
-import com.android.volley.AuthFailureError;
-import com.android.volley.DefaultRetryPolicy;
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.example.gerenciamentodesalas.Lottie;
 import com.example.gerenciamentodesalas.R;
 import com.example.gerenciamentodesalas.TinyDB;
 import com.example.gerenciamentodesalas.model.Constants;
 import com.example.gerenciamentodesalas.model.Event;
 import com.example.gerenciamentodesalas.model.Usuario;
-import com.example.gerenciamentodesalas.service.FileWritterService;
 import com.example.gerenciamentodesalas.service.HttpRequest;
-import com.example.gerenciamentodesalas.service.VolleySingleton;
-import com.example.gerenciamentodesalas.service.get.HttpServiceGetUsuario;
-import com.example.gerenciamentodesalas.service.get.HttpServiceLogar;
 import com.google.gson.Gson;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.json.JSONObject;
 
-import java.io.IOException;
-import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -93,7 +70,7 @@ public class LoginActivity extends AppCompatActivity {
                     password = viewSenha.getText().toString();
                     hideKeyboard(LoginActivity.this);
                     try {
-                        Login(ip, email, password);
+                        login(ip, email, password);
                     } catch (Exception e) {
                         e.printStackTrace();
                         builder.setMessage("Falha na conexão").setTitle("Erro");
@@ -112,13 +89,13 @@ public class LoginActivity extends AppCompatActivity {
 
 
 
-    public void Login (String ip, String email, String senha) {
+    public void login(String ip, String email, String senha) {
         Map<String, String> params = new HashMap<String, String>();
         Resources resources = getResources();
         params.put("authorization", resources.getString(R.string.auth));
         params.put("email", email);
         params.put("password", senha);
-        new HttpRequest(getApplicationContext(), params, ip + "usuario/login/", "GET", "Login").doRequest();
+        new HttpRequest(getApplicationContext(), params, ip + "usuario/login/", "GET", "login").doRequest();
     }
 
     public void onStart() {
@@ -133,7 +110,7 @@ public class LoginActivity extends AppCompatActivity {
     @Subscribe
     public void customEventReceived(Event event) {
         final Intent intent = new Intent(LoginActivity.this, ListaSalasActivity.class);
-        if (event.getEventName().equals("Login" + Constants.eventSuccessLabel) || event.getEventStatusCode() == 200) {
+        if (event.getEventName().equals("login" + Constants.eventSuccessLabel) || event.getEventStatusCode() == 200) {
                 try {
                     String usuarioJSONStr = event.getEventMsg();
                     JSONObject usuarioJSON = new JSONObject(usuarioJSONStr);
@@ -145,7 +122,7 @@ public class LoginActivity extends AppCompatActivity {
                     tinyDB.putObject("usuario", usuario);
                     tinyDB.putString("senha", viewSenha.getText().toString());
                     tinyDB.putString("nomeOrganizacao", nomeOrganizacao);
-                    builder.setMessage("Login efetuado com sucesso!").setTitle("Sucesso!");
+                    builder.setMessage("login efetuado com sucesso!").setTitle("Sucesso!");
                     builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
                             LoginActivity.this.startActivity(intent);
@@ -165,7 +142,7 @@ public class LoginActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
         }
-        else if (event.getEventName().equals("Login" + Constants.eventErrorLabel)){
+        else if (event.getEventName().equals("login" + Constants.eventErrorLabel)){
             builder.setMessage("Falha na conexão." + "\r\nErro na comunicação com o servidor.").setTitle("Erro");
             builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
@@ -175,7 +152,7 @@ public class LoginActivity extends AppCompatActivity {
             AlertDialog dialog = builder.create();
             dialog.show();
         }
-        else if (event.getEventName().equals("Login" + Constants.eventErrorLabel)){
+        else if (event.getEventName().equals("login" + Constants.eventErrorLabel)){
             builder.setMessage("Falha na conexão." + "\r\nErro na comunicação com o servidor.").setTitle("Erro");
             builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
@@ -209,7 +186,7 @@ public class LoginActivity extends AppCompatActivity {
 //                    new Response.Listener<String>() {
 //                        @Override
 //                        public void onResponse(String response) {
-//                            System.out.println("Response Login: " + response);
+//                            System.out.println("Response login: " + response);
 //                            Toast.makeText(getApplicationContext(), response, Toast.LENGTH_SHORT).show();
 //                            viewLoading.setVisibility(View.GONE);
 //                        }

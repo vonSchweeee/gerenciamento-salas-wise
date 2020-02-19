@@ -2,7 +2,6 @@ package com.example.gerenciamentodesalas.ui.activity;
 
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -26,23 +25,16 @@ import com.example.gerenciamentodesalas.model.Constants;
 import com.example.gerenciamentodesalas.model.Event;
 import com.example.gerenciamentodesalas.model.Sala;
 import com.example.gerenciamentodesalas.model.Usuario;
-import com.example.gerenciamentodesalas.service.FileWritterService;
 import com.example.gerenciamentodesalas.service.HttpRequest;
-import com.example.gerenciamentodesalas.service.get.HttpServiceGetAlocacoesData;
 import com.example.gerenciamentodesalas.ui.adapter.AgendamentoAdapter;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.joda.time.DateTime;
 import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -82,7 +74,7 @@ public class AgendamentoActivity extends AppCompatActivity implements Navigation
         navNome.setText(usuario.getNome());
         navOrg.setText(usuario.getIdOrganizacao().getNome());
         navEmail.setText(usuario.getEmail());
-        final Intent intentCriacaoAgendamento = new Intent(AgendamentoActivity.this, CriacaoAgendamentoActivity.class);
+        final Intent intentInfoAgendamento = new Intent(AgendamentoActivity.this, InfoAgendamentoActivity.class);
         Resources resources = getResources();
         ip = resources.getString(R.string.ip);
         SimpleDateFormat formatoData = new SimpleDateFormat("yyyy-MM-dd");
@@ -115,7 +107,10 @@ public class AgendamentoActivity extends AppCompatActivity implements Navigation
         builder = new AlertDialog.Builder(AgendamentoActivity.this);
         fabAddAlocacao.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                AgendamentoActivity.this.startActivity(intentCriacaoAgendamento);
+                    tinyDB.remove("modoAgendamento");
+                    tinyDB.remove("alocacaoSelecionada");
+                    tinyDB.putString("modoAgendamento", "criar");
+                AgendamentoActivity.this.startActivity(intentInfoAgendamento);
             }
         });
         try {
@@ -169,8 +164,8 @@ public class AgendamentoActivity extends AppCompatActivity implements Navigation
 
     @Subscribe
     public void customEventReceived(Event event){
+        final Intent intentInfoAgendamento = new Intent(AgendamentoActivity.this, InfoAgendamentoActivity.class);
         if (event.getEventName().equals("getAlocacoes" + Constants.eventSuccessLabel)) {
-            final Intent intentExcluirAgendamento = new Intent(AgendamentoActivity.this, ExcluirAgendamentoActivity.class);
             tinyDB = new TinyDB(getApplicationContext());
             final Gson gson = new Gson();
             List<AlocacaoSala> listaSalas = new ArrayList<AlocacaoSala>();
@@ -187,9 +182,24 @@ public class AgendamentoActivity extends AppCompatActivity implements Navigation
             }
             final ListView listaDeAlocacao = findViewById(R.id.lista_alocacao_listview);
             listaDeAlocacao.setAdapter(new AgendamentoAdapter(listaSalas, this));
-            final FloatingActionButton fabRemAlocacao = findViewById(R.id.fabRemAlocacao);
-
             final JSONArray finalAlocacoesArray = alocacoesArray;
+            listaDeAlocacao.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    try {
+                        AlocacaoSala alocacao = gson.fromJson(finalAlocacoesArray.getJSONObject(position).toString(), AlocacaoSala.class);
+                            tinyDB.remove("modoAgendamento");
+                            tinyDB.remove("alocacaoSelecionada");
+                            tinyDB.putObject("alocacaoSelecionada", alocacao);
+                            tinyDB.putString("modoAgendamento", "alterar");
+                        AgendamentoActivity.this.startActivity(intentInfoAgendamento);
+                    }
+                    catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+            final FloatingActionButton fabRemAlocacao = findViewById(R.id.fabRemAlocacao);
             fabRemAlocacao.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     builder.setMessage("Selecione uma alocação para desagendar").setTitle("Remover alocação");
@@ -205,8 +215,11 @@ public class AgendamentoActivity extends AppCompatActivity implements Navigation
                         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                             try {
                                 AlocacaoSala alocacao = gson.fromJson(finalAlocacoesArray.getJSONObject(position).toString(), AlocacaoSala.class);
-                                tinyDB.putObject("alocacaoSelecionada", alocacao);
-                                AgendamentoActivity.this.startActivity(intentExcluirAgendamento);
+                                    tinyDB.remove("modoAgendamento");
+                                    tinyDB.remove("alocacaoSelecionada");
+                                    tinyDB.putObject("alocacaoSelecionada", alocacao);
+                                tinyDB.putString("modoAgendamento", "excluir");
+                                AgendamentoActivity.this.startActivity(intentInfoAgendamento);
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }

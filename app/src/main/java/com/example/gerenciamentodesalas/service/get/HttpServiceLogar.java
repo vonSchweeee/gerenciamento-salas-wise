@@ -43,7 +43,7 @@ public class HttpServiceLogar extends AsyncTask<String, Void, String> {
                 result.append(line);
             }
             rd.close();
-            if (result.toString().equals("Login efetuado com sucesso!"))
+            if (result.toString().equals("login efetuado com sucesso!"))
                 return "200";
             else
                 return result.toString();

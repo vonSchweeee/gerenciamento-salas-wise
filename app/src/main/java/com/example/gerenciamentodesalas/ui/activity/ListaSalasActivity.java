@@ -135,11 +135,14 @@ public class ListaSalasActivity extends AppCompatActivity implements NavigationV
             });
         }
         else if (event.getEventName().startsWith("getSalas" + Constants.eventErrorLabel)) {
+            textLoading.setVisibility(View.GONE);
+            progressBar.setVisibility(View.GONE);
             Snackbar snackbar = Snackbar
                     .make(getCurrentFocus(), "Falha ao carregar as salas", Snackbar.LENGTH_INDEFINITE)
                     .setAction("Tentar novamente", new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
+                            ListaSalasActivity.this.recreate();
                         }
                     });
 
