@@ -1,4 +1,4 @@
-package com.example.gerenciamentodesalas.service;
+package com.example.gerenciamentodesalas.service.get;
 
 import android.os.AsyncTask;
 
@@ -7,14 +7,14 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public class alocacaoPegar extends AsyncTask<String, Void, String> {
+public class HttpServiceGetAlocacoesData extends AsyncTask<String, Void, String> {
 
     private final String ip;
     private final String idSala;
     private final String diaEscolhido;
     private final String fimDiaEscolhido;
 
-    public alocacaoPegar(String ip, String idSala, String diaEscolhido, String fimDiaEscolhido) {
+    public HttpServiceGetAlocacoesData(String ip, String idSala, String diaEscolhido, String fimDiaEscolhido) {
         this.ip = ip;
         this.idSala = idSala;
         this.diaEscolhido = diaEscolhido;
@@ -23,7 +23,7 @@ public class alocacaoPegar extends AsyncTask<String, Void, String> {
     @Override
     protected String doInBackground(String... strings) {
 
-        String urlWS = "http://" + ip + "/ReservaDeSala/rest/alocacao/getalocacoesbysaladata";
+        String urlWS = ip + "alocacao/getalocacoesbysaladata";
 
         String authorizationHeader = "secret";
         try {

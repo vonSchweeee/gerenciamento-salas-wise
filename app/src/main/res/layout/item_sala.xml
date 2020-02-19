@@ -8,25 +8,60 @@
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cardView"
-        android:layout_width="409dp"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/imageViewSala"
+                android:layout_width="0dp"
+                android:layout_height="172dp"
+                android:scaleType="centerCrop"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/barraDivisao2"
+                app:srcCompat="@drawable/ic_broken_image_black_72dp" />
 
             <TextView
                 android:id="@+id/textViewSalas"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                tools:text="@sample/salas.json/salas/nome"
-                android:textSize="30sp"
-                app:layout_constraintBottom_toBottomOf="parent"
+                android:shadowColor="@android:color/background_dark"
+                android:textAlignment="textStart"
+
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:textSize="24sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="@sample/salas.json/salas/nome" />
+
+            <ImageView
+                android:id="@+id/barraDivisao2"
+                android:layout_width="0dp"
+                android:layout_height="2dp"
+                app:layout_constraintBottom_toTopOf="@+id/imageViewSala"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textViewSalas"
+                app:srcCompat="@android:color/black" />
+
+            <ImageView
+                android:id="@+id/barraDivisao3"
+                android:layout_width="0dp"
+                android:layout_height="4dp"
+                app:layout_constraintBottom_toBottomOf="@+id/imageViewSala"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:srcCompat="@color/colorAccent" />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.cardview.widget.CardView>

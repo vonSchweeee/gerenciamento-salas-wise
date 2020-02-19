@@ -7,38 +7,20 @@
     android:layout_height="match_parent">
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/inputNomeRegistro"
+        android:id="@+id/LayoutNomeRegistro"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="64dp"
-        app:layout_constraintBottom_toTopOf="@+id/textEmailRegistro"
+        android:layout_marginEnd="32dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/textLNomeRegistro"
         app:layout_constraintTop_toBottomOf="@+id/textLNomeRegistro">
 
         <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/inputNomeRegistro"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Nome"
             android:inputType="textPersonName" />
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/inputSenhaRegistro"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="64dp"
-        android:layout_marginBottom="2dp"
-        app:layout_constraintBottom_toTopOf="@+id/btnRegistrar"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/textLNomeRegistro"
-        app:layout_constraintTop_toBottomOf="@+id/textSenhaRegistro">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Senha"
-            android:inputType="textPassword" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <TextView
@@ -47,12 +29,8 @@
         android:layout_height="wrap_content"
         android:text="Nome"
         android:textSize="24sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.27"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.39" />
+        app:layout_constraintStart_toStartOf="@+id/textSenhaRegistro"
+        app:layout_constraintTop_toBottomOf="@+id/LayoutEmailRegistro" />
 
     <TextView
         android:id="@+id/textSenhaRegistro"
@@ -60,12 +38,19 @@
         android:layout_height="wrap_content"
         android:text="Senha"
         android:textSize="24sp"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.269"
+        app:layout_constraintHorizontal_bias="0.13"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.64" />
+        app:layout_constraintTop_toBottomOf="@+id/LayoutNomeRegistro" />
+
+    <TextView
+        android:id="@+id/textEmpresa"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Empresa"
+        android:textSize="24sp"
+        app:layout_constraintStart_toStartOf="@+id/LayoutSenhaRegistro"
+        app:layout_constraintTop_toBottomOf="@+id/LayoutSenhaRegistro" />
 
     <TextView
         android:id="@+id/textEmailRegistro"
@@ -74,57 +59,70 @@
         android:text="E-mail"
         android:textSize="24sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.27"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/LayoutNomeRegistro"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.52" />
+        app:layout_constraintVertical_bias="0.13999999" />
 
     <Button
         android:id="@+id/btnRegistrar"
         android:layout_width="129dp"
         android:layout_height="46dp"
-        android:layout_marginBottom="21dp"
+        android:layout_marginTop="16dp"
         android:text="Cadastrar"
-        app:layout_constraintBottom_toTopOf="@+id/spinnerEmpresas"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.546"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/spinnerEmpresas" />
 
     <TextView
         android:id="@+id/textViewOrganizacao"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="TextView"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginTop="16dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnRegistrar" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <Spinner
         android:id="@+id/spinnerEmpresas"
-        android:layout_width="190dp"
-        android:layout_height="32dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.84000003" />
+        android:layout_width="180dp"
+        android:layout_height="48dp"
+        android:background="@drawable/spinner_background"
+        app:layout_constraintStart_toStartOf="@+id/LayoutSenhaRegistro"
+        app:layout_constraintTop_toBottomOf="@+id/textEmpresa" />
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/inputEmailRegistro"
+        android:id="@+id/LayoutEmailRegistro"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="64dp"
-        app:layout_constraintBottom_toTopOf="@+id/textSenhaRegistro"
+        android:layout_marginEnd="32dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/textEmailRegistro">
+        app:layout_constraintStart_toStartOf="@+id/textEmailRegistro"
+        app:layout_constraintTop_toBottomOf="@+id/textEmailRegistro">
 
         <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/inputEmailRegistro"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="E-mail"
             android:inputType="textEmailAddress" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/LayoutSenhaRegistro"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="32dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/textSenhaRegistro"
+        app:layout_constraintTop_toBottomOf="@+id/textSenhaRegistro">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/inputSenhaRegistro"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Senha"
+            android:inputType="textPassword" />
     </com.google.android.material.textfield.TextInputLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

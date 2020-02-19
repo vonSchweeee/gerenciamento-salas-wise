@@ -2,6 +2,7 @@ package com.example.gerenciamentodesalas.dao;
 
 import android.content.Context;
 
+import com.example.gerenciamentodesalas.TinyDB;
 import com.example.gerenciamentodesalas.model.Sala;
 import com.example.gerenciamentodesalas.service.FileWritterService;
 import com.example.gerenciamentodesalas.ui.activity.ListaSalasActivity;
@@ -17,15 +18,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SalasDAO {
-
-        public List<Sala> lista(String nomeOrganizacao, Context context) {
-            FileWritterService fileWritter = new FileWritterService();
+        public List<Sala> lista(Context context) {
+            TinyDB tinyDB = new TinyDB(context);
             List<Sala> salas = new ArrayList<Sala>();
-            String jsonSalasStr = fileWritter.lerArquivo(context, nomeOrganizacao + "_salas.json");
+            String jsonSalasStr = tinyDB.getString("jsonSalasStr");
             try {
                 JSONArray jsonArraySalas = new JSONArray(jsonSalasStr);
                 JSONObject salaObj;
-                if (jsonArraySalas != null) {
                     for (int i=0;i<jsonArraySalas.length();i++){
                         Gson gson = new Gson();
                         salaObj = jsonArraySalas.getJSONObject(i);
@@ -34,12 +33,10 @@ public class SalasDAO {
                         salas.add(sala);
                     }
                     return salas;
-                }
 
             } catch (JSONException e) {
                 e.printStackTrace();
                 return null;
             }
-            return null;
         }
     }

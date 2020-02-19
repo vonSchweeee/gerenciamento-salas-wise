@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">Gerenciamento de Salas</string>
-    <string name="ip">172.16.1.227:8080</string>
+    <string name="ip">http://172.30.248.90:8080/ReservaDeSala/rest/</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="auth">secret</string>
 </resources>

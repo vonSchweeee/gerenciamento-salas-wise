@@ -4,9 +4,9 @@ public class Usuario {
     private final int id;
     private final String nome;
     private final String email;
-    private final int idOrganizacao;
+    private final Organizacao idOrganizacao;
 
-    public Usuario(int id, String nome, String email, int idOrganizacao) {
+    public Usuario(int id, String nome, String email, Organizacao idOrganizacao) {
         this.id = id;
         this.nome = nome;
         this.email = email;
@@ -25,7 +25,7 @@ public class Usuario {
         return email;
     }
 
-    public int getIdOrganizacao() {
+    public Organizacao getIdOrganizacao() {
         return idOrganizacao;
     }
 }
