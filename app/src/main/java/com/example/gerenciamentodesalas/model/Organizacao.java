@@ -11,9 +11,10 @@ public class Organizacao {
     private final String dominio;
     private final Date dataCriacao;
     private final Date dataAlteracao;
+    private final Boolean ativo;
     private final String CEP;
 
-    public Organizacao(int id, String nome, int idOrganizacaoPai, String tipoOrganizacao, String dominio, Date dataCriacao, Date dataAlteracao, String CEP) {
+    public Organizacao(int id, String nome, int idOrganizacaoPai, String tipoOrganizacao, String dominio, Date dataCriacao, Date dataAlteracao, Boolean ativo, String CEP) {
         this.id = id;
         this.nome = nome;
         this.idOrganizacaoPai = idOrganizacaoPai;
@@ -21,11 +22,16 @@ public class Organizacao {
         this.dominio = dominio;
         this.dataCriacao = dataCriacao;
         this.dataAlteracao = dataAlteracao;
+        this.ativo = ativo;
         this.CEP = CEP;
     }
 
     public int getId() {
         return id;
+    }
+
+    public Boolean getAtivo() {
+        return ativo;
     }
 
     public String getNome() {

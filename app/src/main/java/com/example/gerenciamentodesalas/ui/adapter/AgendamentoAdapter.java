@@ -10,6 +10,7 @@ import android.widget.TextView;
 import com.example.gerenciamentodesalas.R;
 import com.example.gerenciamentodesalas.model.AlocacaoSala;
 
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 public class AgendamentoAdapter extends BaseAdapter {
@@ -41,12 +42,12 @@ public class AgendamentoAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View view, ViewGroup parent) {
         View viewCriada = LayoutInflater.from(context).inflate(R.layout.item_alocacao, parent, false);
-
+        SimpleDateFormat formatoHorario = new SimpleDateFormat("HH:mm");
         AlocacaoSala alocacaoSala = listaAlocacaoSala.get(position);
-
+        TextView textHorario = viewCriada.findViewById(R.id.textViewHoraAlocacao);
         TextView textDescAlocacao = viewCriada.findViewById(R.id.textViewCardAluguel);
         textDescAlocacao.setText(alocacaoSala.getDescricao());
-//
+        textHorario.setText(formatoHorario.format(alocacaoSala.getDataHoraInicio()));
         return viewCriada;
 
 
