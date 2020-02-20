@@ -92,6 +92,7 @@ public class InfoAgendamentoActivity extends AppCompatActivity implements Naviga
         navEmail.setText(usuario.getEmail());
         String modoAgendamento;
         modoAgendamento = tinyDB.getString("modoAgendamento");
+
         if (modoAgendamento.equals("criar")) {
             System.out.println("Criando Agendamento");
             try {
@@ -181,7 +182,7 @@ public class InfoAgendamentoActivity extends AppCompatActivity implements Naviga
                 }
             });
         }
-        else if(modoAgendamento.equals("excluir"));  {
+        else if(modoAgendamento.equals("excluir"))  {
                 textHoraInicio.setEnabled(false);
                 textHoraFim.setEnabled(false);
                 textDescricao.setEnabled(false);
@@ -228,7 +229,7 @@ public class InfoAgendamentoActivity extends AppCompatActivity implements Naviga
                     }
                 });
         }
-        if (modoAgendamento.equals("alterar")) {
+        else if (modoAgendamento.equals("alterar")) {
                 textHoraInicio.setEnabled(false);
                 textHoraFim.setEnabled(false);
                 textDescricao.setEnabled(false);
@@ -328,25 +329,43 @@ public class InfoAgendamentoActivity extends AppCompatActivity implements Naviga
         final Intent intent = new Intent(InfoAgendamentoActivity.this, CalendarioAgendamentoActivity.class);
         builder = new AlertDialog.Builder(InfoAgendamentoActivity.this);
         if (event.getEventName().equals("Reservar" + Constants.eventSuccessLabel)) {
-            builder.setMessage("Reserva realizada com sucesso!").setTitle("Sucesso!");
-            builder.setPositiveButton("Ir para Alocações", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int id) {
-                    InfoAgendamentoActivity.this.finish();
-                }
-            });
-            builder.setNeutralButton("OK", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int id) {
-                    dialog.dismiss();
-                }
-            });
-            builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
-                @Override
-                public void onCancel(DialogInterface dialog) {
-                    dialog.dismiss();
-                }
-            });
-            AlertDialog dialog = builder.create();
-            dialog.show();
+            if (event.getEventStatusCode() == 201) {
+                builder.setMessage("Reserva realizada com sucesso!").setTitle("Sucesso!");
+                builder.setPositiveButton("Ir para Alocações", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        InfoAgendamentoActivity.this.finish();
+                    }
+                });
+                builder.setNeutralButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.dismiss();
+                    }
+                });
+                builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                    @Override
+                    public void onCancel(DialogInterface dialog) {
+                        dialog.dismiss();
+                    }
+                });
+                AlertDialog dialog = builder.create();
+                dialog.show();
+            }
+            else {
+                builder.setMessage(event.getEventMsg()).setTitle("Erro.");
+                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.dismiss();
+                    }
+                });
+                builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                    @Override
+                    public void onCancel(DialogInterface dialog) {
+                        dialog.dismiss();
+                    }
+                });
+                AlertDialog dialog = builder.create();
+                dialog.show();
+            }
         }
         else if (event.getEventName().equals("Reservar" + Constants.eventErrorLabel)) {
             builder.setMessage("Erro no servidor ao realizar a alocação.").setTitle("Erro.");

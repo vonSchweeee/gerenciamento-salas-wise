@@ -240,7 +240,7 @@ public class RegistroActivity extends AppCompatActivity {
         }
 
         else if (event.getEventName().equals("Registrar" + Constants.eventSuccessLabel)) {
-            if (event.getEventStatusCode() == 202) {
+            if (event.getEventStatusCode() == 201) {
                 builder.setMessage("Usuário cadastrado com sucesso!").setTitle("Sucesso!");
                 builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {

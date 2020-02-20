@@ -107,6 +107,7 @@ public class AgendamentoActivity extends AppCompatActivity implements Navigation
         builder = new AlertDialog.Builder(AgendamentoActivity.this);
         fabAddAlocacao.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+                System.out.println(true);
                     tinyDB.remove("modoAgendamento");
                     tinyDB.remove("alocacaoSelecionada");
                     tinyDB.putString("modoAgendamento", "criar");

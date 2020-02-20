@@ -42,7 +42,6 @@ public class HttpRequestImagem {
                 @Override
                 public void onErrorResponse(VolleyError e) {
                     e.printStackTrace();
-
                 }
             }
             );
