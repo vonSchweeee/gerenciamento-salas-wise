@@ -21,15 +21,12 @@ import com.example.gerenciamentodesalas.model.Constants;
 import com.example.gerenciamentodesalas.model.Event;
 import com.example.gerenciamentodesalas.model.Organizacao;
 import com.example.gerenciamentodesalas.service.HttpRequest;
-import com.example.gerenciamentodesalas.service.post.HttpServiceRegistrar;
-import com.example.gerenciamentodesalas.service.get.HttpServiceVerificarDominio;
 import com.example.gerenciamentodesalas.ui.adapter.SpinnerAdapter;
 import com.google.gson.Gson;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -240,7 +237,7 @@ public class RegistroActivity extends AppCompatActivity {
         }
 
         else if (event.getEventName().equals("Registrar" + Constants.eventSuccessLabel)) {
-            if (event.getEventStatusCode() == 202) {
+            if (event.getEventStatusCode() == 201) {
                 builder.setMessage("Usuário cadastrado com sucesso!").setTitle("Sucesso!");
                 builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {

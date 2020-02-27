@@ -4,18 +4,9 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.widget.ImageView;
 
-import com.android.volley.AuthFailureError;
-import com.android.volley.DefaultRetryPolicy;
-import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageRequest;
-import com.android.volley.toolbox.StringRequest;
-import com.example.gerenciamentodesalas.VolleySingletonImg;
-import com.example.gerenciamentodesalas.model.Constants;
-import com.example.gerenciamentodesalas.model.Event;
-
-import org.greenrobot.eventbus.EventBus;
 
 import java.util.Map;
 
@@ -42,7 +33,6 @@ public class HttpRequestImagem {
                 @Override
                 public void onErrorResponse(VolleyError e) {
                     e.printStackTrace();
-
                 }
             }
             );

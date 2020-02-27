@@ -1,11 +1,14 @@
 package com.example.gerenciamentodesalas.ui.activity;
 
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.DatePicker;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -26,12 +29,22 @@ import com.example.gerenciamentodesalas.model.Sala;
 import com.example.gerenciamentodesalas.model.Usuario;
 import com.example.gerenciamentodesalas.service.HttpRequest;
 import com.example.gerenciamentodesalas.ui.adapter.ListaSalasAdapter;
+import com.google.android.material.datepicker.DateSelector;
+import com.google.android.material.datepicker.MaterialCalendar;
+import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.gson.Gson;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
+import org.json.JSONArray;
+import org.json.JSONException;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,6 +57,7 @@ public class ListaSalasActivity extends AppCompatActivity implements NavigationV
     ListView listaDeSalas;
     TextView textLoading;
     ProgressBar progressBar;
+    DatePickerDialog dp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -110,40 +124,91 @@ public class ListaSalasActivity extends AppCompatActivity implements NavigationV
         params.put("authorization", auth);
         params.put("idOrganizacao", idOrganizacao);
         new HttpRequest(ListaSalasActivity.this, params, url + "sala/getsalas", "GET", "getSalas").doRequest();
-        System.out.println("salaspegadas");
+        Map<String, String> parameters = new HashMap<String, String>();
+        parameters.put("authorization", resources.getString(R.string.auth));
+        parameters.put("idOrganizacao", String.valueOf(tinyDB.getObject("usuario", Usuario.class).getId()));
+        new HttpRequest(getApplicationContext(), params, url + "usuario/usuariosorganizacao", "GET", "GetUsuariosOrg").doRequest();
+    }
+
+    private void getUsuariosOrganizacao() {
+
     }
 
     @Subscribe
     public void customEventReceived(Event event){
+        final SimpleDateFormat formatoBrData = new SimpleDateFormat("dd/MM/yyyy");
         if (event.getEventName().equals("getSalas" + Constants.eventSuccessLabel)) {
-            final Intent intent = new Intent(ListaSalasActivity.this, CalendarioAgendamentoActivity.class);
-            jsonSalasString = event.getEventMsg();
-            tinyDB.putString("jsonSalasStr", jsonSalasString);
-            textLoading.setVisibility(View.GONE);
-            progressBar.setVisibility(View.GONE);
-            final List<Sala> salas = new SalasDAO().lista(this);
-            listaDeSalas.setAdapter(new ListaSalasAdapter(salas, ListaSalasActivity.this));
-            listaDeSalas.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    TextView salaEscolha = view.findViewById(R.id.textViewSalas);
-                    String salaEscolhida = salaEscolha.getText().toString();
-                    Sala sala = salas.get(position);
-                    tinyDB.putObject("salaEscolhida", sala);
-                    ListaSalasActivity.this.startActivity(intent);
-                }
-            });
+            if (event.getEventStatusCode() == 200) {
+                SimpleDateFormat formatoData = new SimpleDateFormat("yyyy-MM-dd");
+                final Intent intent = new Intent(ListaSalasActivity.this, AgendamentoActivity.class);
+                jsonSalasString = event.getEventMsg();
+                tinyDB.putString("jsonSalasStr", jsonSalasString);
+                textLoading.setVisibility(View.GONE);
+                progressBar.setVisibility(View.GONE);
+                final List<Sala> salas = new SalasDAO().lista(this);
+                listaDeSalas.setAdapter(new ListaSalasAdapter(salas, ListaSalasActivity.this));
+                Calendar c =Calendar.getInstance();
+                String dataHoje = formatoData.format(c.getTime());
+                String [] data = dataHoje.split("-");
+                listaDeSalas.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        DatePickerDialog datePickerDialog = new DatePickerDialog(ListaSalasActivity.this,
+                                new DatePickerDialog.OnDateSetListener() {
+                                    @Override
+                                    public void onDateSet(DatePicker view, int year,
+                                                          int monthOfYear, int dayOfMonth) {
+                                        Calendar cal = Calendar.getInstance();
+                                        cal.set(Calendar.YEAR, year);
+                                        cal.set(Calendar.MONTH, monthOfYear);
+                                        cal.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+
+                                        Date data = cal.getTime();
+                                        String dataEscolhida = formatoBrData.format(data);
+                                        tinyDB.putString("dataEscolhida", dataEscolhida);
+                                        TextView salaEscolha = view.findViewById(R.id.textViewSalas);
+                                        Sala sala = salas.get(position);
+                                        tinyDB.putObject("salaEscolhida", sala);
+                                        ListaSalasActivity.this.startActivity(intent);
+                                    }
+                                }, Integer.parseInt(data[0]), Integer.parseInt(data[1]), Integer.parseInt(data[2]));
+                        datePickerDialog.setTitle("Escolha a data.");
+                        datePickerDialog.show();
+                    }
+                });
+            }
         }
         else if (event.getEventName().startsWith("getSalas" + Constants.eventErrorLabel)) {
+            textLoading.setVisibility(View.GONE);
+            progressBar.setVisibility(View.GONE);
             Snackbar snackbar = Snackbar
-                    .make(getCurrentFocus(), "Falha ao carregar as salas", Snackbar.LENGTH_INDEFINITE)
+                    .make(textLoading, "Falha ao carregar as salas", Snackbar.LENGTH_INDEFINITE)
                     .setAction("Tentar novamente", new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
+                            ListaSalasActivity.this.recreate();
                         }
                     });
 
             snackbar.show();
+        }
+
+        if (event.getEventName().equals("GetUsuariosOrg" + Constants.eventSuccessLabel)) {
+            if (event.getEventStatusCode() == 200) {
+                try {
+                    JSONArray arrayUsuarios = new JSONArray(event.getEventMsg());
+                    Gson gson = new Gson();
+                    ArrayList<Object> usuarioList = new ArrayList<>();
+                    for (int i = 0; i<arrayUsuarios.length(); i++){
+                        Usuario usuario = gson.fromJson(arrayUsuarios.getJSONObject(i).toString(), Usuario.class);
+                        usuarioList.add(i, usuario);
+                    }
+                    tinyDB.putListObject("usuarioList", usuarioList);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }
         }
 
     }

@@ -39,18 +39,6 @@
 
         </LinearLayout>
 
-        <CalendarView
-            android:id="@+id/calendario"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:maxDate="31/12/2021"
-            android:minDate="01/01/2020"
-            app:layout_constraintBottom_toTopOf="@+id/btn"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textViewSala" />
-
         <Button
             android:id="@+id/btn"
             android:layout_width="wrap_content"
@@ -66,11 +54,10 @@
             android:id="@+id/textViewData"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
             android:text="DD/MM/AAAA"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
+            app:layout_constraintTop_toBottomOf="@+id/btn" />
 
         <TextView
             android:id="@+id/textViewSala"
@@ -81,6 +68,21 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textViewData" />
+
+        <DatePicker
+            android:id="@+id/calendario"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="36dp"
+            android:datePickerMode="calendar"
+            android:maxDate="31/12/2021"
+            android:minDate="01/01/2020"
+            android:scaleX="1.18"
+            android:scaleY="1.18"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.491"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

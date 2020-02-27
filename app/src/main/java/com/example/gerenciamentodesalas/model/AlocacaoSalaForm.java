@@ -4,8 +4,8 @@ import androidx.annotation.Nullable;
 
 import java.util.Date;
 
-public class AlocacaoSalaPOST {
-//    @Nullable private final int id;
+public class AlocacaoSalaForm {
+    @Nullable private final int id;
     private final int idSala;
     private final int idUsuario;
     private final String dataHoraInicio;
@@ -15,8 +15,8 @@ public class AlocacaoSalaPOST {
 //    @Nullable private final Date dataCriacao;
 //    @Nullable private final Date dataAlteracao;
 
-    public AlocacaoSalaPOST(/*int id, */int idSala, int idUsuario, String dataHoraInicio, String dataHoraFim, String descricao/*, Boolean ativo, Date dataCriacao, Date dataAlteracao*/) {
-//        this.id = id;
+    public AlocacaoSalaForm(int id, int idSala, int idUsuario, String dataHoraInicio, String dataHoraFim, String descricao/*, Boolean ativo, Date dataCriacao, Date dataAlteracao*/) {
+        this.id = id;
         this.idSala = idSala;
         this.idUsuario = idUsuario;
         this.dataHoraInicio = dataHoraInicio;
@@ -26,7 +26,7 @@ public class AlocacaoSalaPOST {
 //        this.dataCriacao = dataCriacao;
 //        this.dataAlteracao = dataAlteracao;
     }
-//    public int getId() {return id;}
+    public int getId() {return id;}
     public int getIdSala() {
         return idSala;
     }

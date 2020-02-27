@@ -23,7 +23,7 @@
             android:name=".ui.activity.ExcluirAgendamentoActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".ui.activity.CriacaoAgendamentoActivity"
+            android:name=".ui.activity.InfoAgendamentoActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".ui.activity.LoginActivity"/>
         <activity
