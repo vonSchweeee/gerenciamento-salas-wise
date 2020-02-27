@@ -4,8 +4,6 @@ import android.content.Context;
 
 import com.example.gerenciamentodesalas.TinyDB;
 import com.example.gerenciamentodesalas.model.Sala;
-import com.example.gerenciamentodesalas.service.FileWritterService;
-import com.example.gerenciamentodesalas.ui.activity.ListaSalasActivity;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;

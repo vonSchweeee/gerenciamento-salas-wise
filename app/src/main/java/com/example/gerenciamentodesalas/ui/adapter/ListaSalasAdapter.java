@@ -11,21 +11,14 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.android.volley.DefaultRetryPolicy;
-import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.ImageRequest;
 import com.example.gerenciamentodesalas.R;
-import com.example.gerenciamentodesalas.VolleySingletonImg;
 import com.example.gerenciamentodesalas.model.Sala;
-import com.example.gerenciamentodesalas.service.HttpRequest;
-import com.example.gerenciamentodesalas.service.HttpRequestImagem;
 import com.example.gerenciamentodesalas.service.VolleySingleton;
-import com.example.gerenciamentodesalas.service.get.HttpServiceGetImagemSala;
 
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 public class ListaSalasAdapter extends BaseAdapter {
 

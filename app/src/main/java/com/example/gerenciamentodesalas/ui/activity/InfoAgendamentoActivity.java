@@ -24,7 +24,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import com.example.gerenciamentodesalas.R;
 import com.example.gerenciamentodesalas.TinyDB;
 import com.example.gerenciamentodesalas.model.AlocacaoSala;
-import com.example.gerenciamentodesalas.model.AlocacaoSalaPOST;
+import com.example.gerenciamentodesalas.model.AlocacaoSalaForm;
 import com.example.gerenciamentodesalas.model.Constants;
 import com.example.gerenciamentodesalas.model.Event;
 import com.example.gerenciamentodesalas.model.Sala;
@@ -53,6 +53,7 @@ public class InfoAgendamentoActivity extends AppCompatActivity implements Naviga
     String data;
     AlertDialog.Builder builder;
     TinyDB tinyDB;
+    Boolean escolhido;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,6 +85,7 @@ public class InfoAgendamentoActivity extends AppCompatActivity implements Naviga
         final SimpleDateFormat formatoDataHora = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         final SimpleDateFormat formatoDataBr = new SimpleDateFormat("dd/MM/yyyy");
         final SimpleDateFormat formatoDataSql = new SimpleDateFormat("yyyy-MM-dd");
+        final SimpleDateFormat formatoDia = new SimpleDateFormat("yyyy-MM-dd");
         final int idUsuario = usuario.getId();
         final int idSala = sala.getId();
         final String ip = resources.getString(R.string.ip);
@@ -100,12 +102,21 @@ public class InfoAgendamentoActivity extends AppCompatActivity implements Naviga
             } catch (ParseException e) {
                 e.printStackTrace();
             }
+            final Calendar horaAtual = Calendar.getInstance();
             imgViewInicio.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    final Calendar tempoAgora = Calendar.getInstance();
-                    int hour = tempoAgora.get(Calendar.HOUR_OF_DAY);
-                    int minute = tempoAgora.get(Calendar.MINUTE);
+                    int hour;
+                    int minute;
+                    if(! inicioAlterado){
+                        hour = horaAtual.get(Calendar.HOUR_OF_DAY);
+                        minute = horaAtual.get(Calendar.MINUTE);
+                    }
+                    else {
+                        String[] horaEscolhidaFull = textHoraInicio.getText().toString().split(":");
+                        hour = Integer.parseInt(horaEscolhidaFull[0]);
+                        minute = Integer.parseInt(horaEscolhidaFull[1]);
+                    }
                     TimePickerDialog mTimePicker;
                     mTimePicker = new TimePickerDialog(InfoAgendamentoActivity.this, new TimePickerDialog.OnTimeSetListener() {
                         @Override
@@ -125,14 +136,23 @@ public class InfoAgendamentoActivity extends AppCompatActivity implements Naviga
                     }, hour, minute, true);
                     mTimePicker.setTitle("Escolha o horário");
                     mTimePicker.show();
+
                 }
             });
             imgViewFim.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    final Calendar horaAtual = Calendar.getInstance();
-                    int hour = horaAtual.get(Calendar.HOUR_OF_DAY);
-                    int minute = horaAtual.get(Calendar.MINUTE);
+                    int hour;
+                    int minute;
+                    if(!fimAlterado){
+                        hour = horaAtual.get(Calendar.HOUR_OF_DAY);
+                        minute = horaAtual.get(Calendar.MINUTE);
+                    }
+                    else {
+                        String[] horaEscolhidaFull = textHoraFim.getText().toString().split(":");
+                        hour = Integer.parseInt(horaEscolhidaFull[0]);
+                        minute = Integer.parseInt(horaEscolhidaFull[1]);
+                    }
                     TimePickerDialog timePicker;
                     timePicker = new TimePickerDialog(InfoAgendamentoActivity.this, new TimePickerDialog.OnTimeSetListener() {
                         @Override
@@ -179,6 +199,16 @@ public class InfoAgendamentoActivity extends AppCompatActivity implements Naviga
                             dialog.show();
                         }
                     }
+                    else {
+                        builder.setMessage("O horário  deve ser definido.").setTitle("Por favor defina o horário.");
+                        builder.setNeutralButton("OK", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.dismiss();
+                            }
+                        });
+                        AlertDialog dialog = builder.create();
+                        dialog.show();
+                    }
                 }
             });
         }
@@ -192,8 +222,8 @@ public class InfoAgendamentoActivity extends AppCompatActivity implements Naviga
                 Date dataHoraInicio = null;
                 Date dataHoraFim = null;
                 String descricao = null;
-                String horaInicio = null;
-                String horaFim = null;
+                String horaInicioStr = null;
+                String horaFimStr = null;
                 AlocacaoSala alocacaoSelecionada = null;
                 try {
                     alocacaoSelecionada = tinyDB.getObject("alocacaoSelecionada", AlocacaoSala.class);
@@ -204,13 +234,15 @@ public class InfoAgendamentoActivity extends AppCompatActivity implements Naviga
                     dataHoraInicio = alocacaoSelecionada.getDataHoraInicio();
                     dataHoraFim = alocacaoSelecionada.getDataHoraFim();
                     descricao = alocacaoSelecionada.getDescricao();
-                    horaInicio = formatoTempo.format(dataHoraInicio);
-                    horaFim = formatoTempo.format(dataHoraFim);
+                    horaInicioStr = formatoTempo.format(dataHoraInicio);
+                    horaFimStr = formatoTempo.format(dataHoraFim);
+                    horaInicio = formatoDataHora.parse(formatoDia.format(formatoDataBr.parse(tinyDB.getString("dataEscolhida"))) + " " + horaInicioStr + ":00");
+                    horaFim = formatoDataHora.parse(formatoDia.format(formatoDataBr.parse(tinyDB.getString("dataEscolhida"))) + " " + horaFimStr + ":00");
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                textHoraInicio.setText(horaInicio);
-                textHoraFim.setText(horaFim);
+                textHoraInicio.setText(horaInicioStr);
+                textHoraFim.setText(horaFimStr);
                 textDescricao.setText(descricao);
 
                 final AlocacaoSala finalAlocacaoSelecionada = alocacaoSelecionada;
@@ -230,18 +262,23 @@ public class InfoAgendamentoActivity extends AppCompatActivity implements Naviga
                 });
         }
         else if (modoAgendamento.equals("alterar")) {
-                textHoraInicio.setEnabled(false);
-                textHoraFim.setEnabled(false);
-                textDescricao.setEnabled(false);
-                imgViewFim.setEnabled(false);
-                imgViewInicio.setEnabled(false);
+                textHoraInicio.setEnabled(true);
+                textHoraFim.setEnabled(true);
+                textDescricao.setEnabled(true);
+                imgViewFim.setEnabled(true);
+                imgViewInicio.setEnabled(true);
                 System.out.println("Alterando Agendamento");
                 Date dataHoraInicio = null;
                 Date dataHoraFim = null;
                 String descricao = null;
-                String horaInicio = null;
-                String horaFim = null;
-                AlocacaoSala alocacaoSelecionada = null;
+                String horaInicioStr = null;
+                String horaFimStr = null;
+                AlocacaoSala alocacaoSelecionada = tinyDB.getObject("alocacaoSelecionada", AlocacaoSala.class);
+                try {
+                    data = formatoDataSql.format(formatoDataBr.parse(tinyDB.getString("dataEscolhida")));
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
                 try {
                     alocacaoSelecionada = tinyDB.getObject("alocacaoSelecionada", AlocacaoSala.class);
                 } catch (Exception e) {
@@ -251,25 +288,114 @@ public class InfoAgendamentoActivity extends AppCompatActivity implements Naviga
                     dataHoraInicio = alocacaoSelecionada.getDataHoraInicio();
                     dataHoraFim = alocacaoSelecionada.getDataHoraFim();
                     descricao = alocacaoSelecionada.getDescricao();
-                    horaInicio = formatoTempo.format(dataHoraInicio);
-                    horaFim = formatoTempo.format(dataHoraFim);
+                    horaInicioStr = formatoTempo.format(dataHoraInicio);
+                    horaFimStr = formatoTempo.format(dataHoraFim);
+                    System.out.println(tinyDB.getString("dataEscolhida"));
+                    horaInicio = formatoDataHora.parse(formatoDia.format(formatoDataBr.parse(tinyDB.getString("dataEscolhida"))) + " " + horaInicioStr + ":00");
+                    horaFim = formatoDataHora.parse(formatoDia.format(formatoDataBr.parse(tinyDB.getString("dataEscolhida"))) + " " + horaFimStr + ":00");
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                textHoraInicio.setText(horaInicio);
-                textHoraFim.setText(horaFim);
+                textHoraInicio.setText(horaInicioStr);
+                textHoraFim.setText(horaFimStr);
                 textDescricao.setText(descricao);
 
                 final AlocacaoSala finalAlocacaoSelecionada = alocacaoSelecionada;
-                btnConfirmar.setOnClickListener(new View.OnClickListener() {
+                final Calendar horaAtual = Calendar.getInstance();
+                final Calendar hora = Calendar.getInstance();
+                escolhido = false;
+                imgViewInicio.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        String retorno = null;
+                        int hour;
+                        int minute;
+                        if(! escolhido ){
+                            hour = horaAtual.get(Calendar.HOUR_OF_DAY);
+                            minute = horaAtual.get(Calendar.MINUTE);
+                        }
+                        else {
+                            hora.setTime(horaFim);
+                            hour = hora.get(Calendar.HOUR_OF_DAY);
+                            minute = hora.get(Calendar.MINUTE);
+                        }
+                        TimePickerDialog mTimePicker;
+                        mTimePicker = new TimePickerDialog(InfoAgendamentoActivity.this, new TimePickerDialog.OnTimeSetListener() {
+                            @Override
+                            public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
+                                Date horaEscolhida = null;
+                                try {
+                                    horaEscolhida = formatoTempo.parse(selectedHour + ":" + selectedMinute);
+                                    horaInicio = formatoDataHora.parse(data + " " + selectedHour + ":" + selectedMinute + ":" + "00");
+                                    System.out.println(horaInicio);
+                                    escolhido = true;
+                                } catch (ParseException e) {
+                                    e.printStackTrace();
+                                }
+                                String horaEscolhidaStr = formatoTempo.format(horaEscolhida);
+                                textHoraInicio.setText(horaEscolhidaStr);
+                                inicioAlterado = true;
+                            }
+                        }, hour, minute, true);
+                        mTimePicker.setTitle("Escolha o horário");
+                        mTimePicker.show();
+                    }
+                });
+                imgViewFim.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                        int hour;
+                        int minute;
+                        if(! escolhido ){
+                            hour = horaAtual.get(Calendar.HOUR_OF_DAY);
+                            minute = horaAtual.get(Calendar.MINUTE);
+                        }
+                        else {
+                            try{
+                                hora.setTime(horaFim);
+                            }
+                            catch (Exception e){}
+                            hora.setTime(horaInicio);
+                            hour = hora.get(Calendar.HOUR_OF_DAY);
+                            minute = hora.get(Calendar.MINUTE);
+                            escolhido = true;
+                        }
+                        TimePickerDialog timePicker;
+                        timePicker = new TimePickerDialog(InfoAgendamentoActivity.this, new TimePickerDialog.OnTimeSetListener() {
+                            @Override
+                            public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
+                                Date horaEscolhida = null;
+                                try {
+                                    horaEscolhida = formatoTempo.parse(selectedHour + ":" + selectedMinute);
+                                    horaFim = formatoDataHora.parse(data + " " + selectedHour + ":" + selectedMinute + ":" + "00");
+                                } catch (ParseException e) {
+                                    e.printStackTrace();
+                                }
+                                String horaEscolhidaStr = formatoTempo.format(horaEscolhida);
+                                textHoraFim.setText(horaEscolhidaStr);
+                                fimAlterado = true;
+                            }
+                        }, hour, minute, true);
+                        timePicker.setTitle("Escolha o horário");
+                        timePicker.show();
+                    }
+                });
+                int idAlocacao = 0;
+                try {
+                    idAlocacao = alocacaoSelecionada.getId();
+                }
+                catch (Exception e) {}
+                int finalIdAlocacao = idAlocacao;
+            btnConfirmar.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
                         try {
-                            Resources resources = getResources();
-                            String url = resources.getString(R.string.ip) + "alocacao/excluir";
-                            String id = String.valueOf(finalAlocacaoSelecionada.getId());
-                            DeletarAlocacao(url, id);
+                            String dataHoraInicio = formatoDataHora.format(horaInicio);
+                            String dataHoraFim = formatoDataHora.format(horaFim);
+                            System.out.println(dataHoraInicio + " " + dataHoraFim);
+                            String descricao = textDescricao.getText().toString();
+
+                            AlterarAlocacao(ip, finalIdAlocacao, idSala, idUsuario, descricao, dataHoraInicio, dataHoraFim);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -277,6 +403,7 @@ public class InfoAgendamentoActivity extends AppCompatActivity implements Naviga
                 });
             }
     }
+
     public void onStart() {
         super.onStart();
         EventBus.getDefault().register(this);
@@ -285,24 +412,25 @@ public class InfoAgendamentoActivity extends AppCompatActivity implements Naviga
         super.onStop();
         EventBus.getDefault().unregister(this);
     }
-    public void CriarAlocacao (String url, int idSala, int idUsuario, String descricao, String horaInicio, String horaFim) {
+    private void CriarAlocacao (String url, int idSala, int idUsuario, String descricao, String horaInicio, String horaFim) {
         Map<String, String> params = new HashMap<String, String>();
+        Resources resources = getResources();
         System.out.println(horaInicio);
         Gson gson = new Gson();
         try {
-            AlocacaoSalaPOST alocacao = new AlocacaoSalaPOST(idSala, idUsuario, horaInicio, horaFim, descricao);
-            String jsonAlocacaoStr = gson.toJson(alocacao, AlocacaoSalaPOST.class);
+            AlocacaoSalaForm alocacao = new AlocacaoSalaForm(0, idSala, idUsuario, horaInicio, horaFim, descricao);
+            String jsonAlocacaoStr = gson.toJson(alocacao, AlocacaoSalaForm.class);
             String novaAlocacao64 = Base64.encodeToString(jsonAlocacaoStr.getBytes("UTF-8"), Base64.NO_WRAP);
             System.out.println(jsonAlocacaoStr);
             params.put("novaAlocacao", novaAlocacao64);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        params.put("authorization", "secret");
+        params.put("authorization", resources.getString(R.string.auth));
 
         new HttpRequest(getApplicationContext(), params, url + "alocacao/reservar", "POST", "Reservar").doRequest();
     }
-    public void DeletarAlocacao(String url, String id) {
+    private void DeletarAlocacao(String url, String id) {
         Map<String, String> params = new HashMap<String, String>();
         Resources resources = getResources();
         String auth = resources.getString(R.string.auth);
@@ -310,7 +438,24 @@ public class InfoAgendamentoActivity extends AppCompatActivity implements Naviga
         params.put("authorization", auth);
         new HttpRequest(InfoAgendamentoActivity.this, params, url, "DELETE", "deleteAlocacao").doRequest();
     }
+    private void AlterarAlocacao(String ip, int idAlocacao, int idSala, int idUsuario, String descricao, String dataHoraInicio, String dataHoraFim) {
+        String url = ip + "alocacao/alterar";
+        Map<String, String> params = new HashMap<String, String>();
+        Resources resources = getResources();
+        Gson gson = new Gson();
+        try {
+            AlocacaoSalaForm alocacao = new AlocacaoSalaForm(idAlocacao, idSala, idUsuario, dataHoraInicio, dataHoraFim, descricao);
+            String jsonAlocacaoStr = gson.toJson(alocacao, AlocacaoSalaForm.class);
+            String novaAlocacao64 = Base64.encodeToString(jsonAlocacaoStr.getBytes("UTF-8"), Base64.NO_WRAP);
+            System.out.println(jsonAlocacaoStr);
+            params.put("alocacaoAlterada", novaAlocacao64);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        params.put("authorization", resources.getString(R.string.auth));
 
+        new HttpRequest(getApplicationContext(), params, url, "PUT", "AlterarReserva").doRequest();
+    }
 
     @Override
     public boolean onNavigationItemSelected (@NonNull MenuItem item) {
@@ -331,20 +476,15 @@ public class InfoAgendamentoActivity extends AppCompatActivity implements Naviga
         if (event.getEventName().equals("Reservar" + Constants.eventSuccessLabel)) {
             if (event.getEventStatusCode() == 201) {
                 builder.setMessage("Reserva realizada com sucesso!").setTitle("Sucesso!");
-                builder.setPositiveButton("Ir para Alocações", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        InfoAgendamentoActivity.this.finish();
-                    }
-                });
                 builder.setNeutralButton("OK", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        dialog.dismiss();
+                        InfoAgendamentoActivity.this.finish();
                     }
                 });
                 builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
                     @Override
                     public void onCancel(DialogInterface dialog) {
-                        dialog.dismiss();
+                        InfoAgendamentoActivity.this.finish();
                     }
                 });
                 AlertDialog dialog = builder.create();
@@ -405,12 +545,6 @@ public class InfoAgendamentoActivity extends AppCompatActivity implements Naviga
             builder.setNeutralButton("OK", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    dialog.dismiss();
-                }
-            });
-            builder.setPositiveButton("Retornar para alocações", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
                     InfoAgendamentoActivity.this.finish();
                 }
             });
@@ -438,6 +572,54 @@ public class InfoAgendamentoActivity extends AppCompatActivity implements Naviga
             });
             AlertDialog dialog = builder.create();
             dialog.show();
+        }
+        else if (event.getEventName().equals("Reservar" + Constants.eventSuccessLabel)) {
+            if (event.getEventStatusCode() == 201) {
+                builder.setMessage("Alocação realizada com sucesso.").setTitle("Sucesso!");
+                builder.setNeutralButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        InfoAgendamentoActivity.this.finish();
+                    }
+                });
+                AlertDialog dialog = builder.create();
+                dialog.show();
+            }
+            else {
+                if(event.getEventStatusCode() == 500) {
+                    builder.setMessage("Erro no servidor.").setTitle("Erro.");
+                    builder.setNeutralButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+                    AlertDialog dialog = builder.create();
+                    dialog.show();
+                }
+                if(event.getEventStatusCode() == 0) {
+                    builder.setMessage("Erro na conexão com o servidor.").setTitle("Erro.");
+                    builder.setNeutralButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+                    AlertDialog dialog = builder.create();
+                    dialog.show();
+                }
+                else {
+                    builder.setMessage("Tente novamente.").setTitle("Erro.");
+                    builder.setNeutralButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+                    AlertDialog dialog = builder.create();
+                    dialog.show();
+                }
+            }
         }
     }
 

@@ -64,6 +64,7 @@ public class HttpRequest {
                         @Override
                         public void onErrorResponse(VolleyError error) {
                             try {
+                                System.out.println(12314);
                                 if (error.networkResponse != null) {
                                     String errorResult = new String(error.networkResponse.data, "UTF-8");
                                     try {
@@ -95,7 +96,6 @@ public class HttpRequest {
 
                 }
             };
-
             if (eventName.equals("AutoLogin")) {
                 stringRequest.setRetryPolicy(new DefaultRetryPolicy(
                         1500,

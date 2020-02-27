@@ -24,8 +24,10 @@ import com.google.gson.Gson;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,7 +40,7 @@ public class LoginActivity extends AppCompatActivity {
     String password;
     TinyDB tinyDB;
     LottieAnimationView viewLoading;
-
+    String ip;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,7 +67,7 @@ public class LoginActivity extends AppCompatActivity {
                     viewLoading.setVisibility(View.VISIBLE);
                     btnLogin.setEnabled(false);
                     Resources resources = getResources();
-                    String ip = resources.getString(R.string.ip);
+                    ip = resources.getString(R.string.ip);
                     email = viewEmail.getText().toString();
                     password = viewSenha.getText().toString();
                     hideKeyboard(LoginActivity.this);
@@ -95,7 +97,7 @@ public class LoginActivity extends AppCompatActivity {
         params.put("authorization", resources.getString(R.string.auth));
         params.put("email", email);
         params.put("password", senha);
-        new HttpRequest(getApplicationContext(), params, ip + "usuario/login/", "GET", "login").doRequest();
+        new HttpRequest(getApplicationContext(), params, ip + "usuario/login", "GET", "login").doRequest();
     }
 
     public void onStart() {
@@ -117,11 +119,13 @@ public class LoginActivity extends AppCompatActivity {
                     String nomeOrganizacao = usuarioJSON.getJSONObject("idOrganizacao").getString("nome");
                     Gson gson = new Gson();
                     Usuario usuario = gson.fromJson(usuarioJSONStr, Usuario.class);
-                    System.out.println(usuarioJSON.toString());
-                    System.out.println(usuario.getEmail());
                     tinyDB.putObject("usuario", usuario);
                     tinyDB.putString("senha", viewSenha.getText().toString());
                     tinyDB.putString("nomeOrganizacao", nomeOrganizacao);
+                    Map<String, String> params = new HashMap<String, String>();
+                    Resources resources = getResources();
+                    System.out.println(usuarioJSON.toString());
+                    System.out.println(usuario.getEmail());
                     builder.setMessage("login efetuado com sucesso!").setTitle("Sucesso!");
                     builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {

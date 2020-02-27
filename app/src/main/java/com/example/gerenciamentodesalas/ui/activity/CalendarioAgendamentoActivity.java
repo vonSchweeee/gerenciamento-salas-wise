@@ -10,6 +10,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CalendarView;
+import android.widget.DatePicker;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -36,7 +37,7 @@ import java.util.Date;
 
 public class CalendarioAgendamentoActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     private DrawerLayout drawer;
-    private CalendarView calendario;
+    private DatePicker calendario;
     private DatePickerDialog.OnDateSetListener pegarData;
     int ano, mes, dia;
     private static final String TAG = "CalendarioActivity";
@@ -82,34 +83,30 @@ public class CalendarioAgendamentoActivity extends AppCompatActivity implements 
         final TextView textViewSala = findViewById(R.id.textViewSala);
         Intent intent = getIntent();
         textViewSala.setText(tinyDB.getObject("salaEscolhida", Sala.class).getNome());
-        calendario.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
-            @Override
-            public void onSelectedDayChange(CalendarView calendarView, int year, int month, int dayOfMonth) {
-                String dataRaw;
-                String dataString;
-                Log.d(TAG, "onDateSet: dd/MM/yyyy: " + dayOfMonth + "/" + month + "/" + year);
-                dataRaw = dayOfMonth + "/" + month + "/" + year;
-                String parts[] = dataRaw.split("/");
-                month++;
-                int dia = Integer.parseInt(parts[0]);
-                int mes = Integer.parseInt(parts[1]);
-                int ano = Integer.parseInt(parts[2]);
 
-                Calendar calendar = Calendar.getInstance();
-                calendar.set(Calendar.YEAR, ano);
-                calendar.set(Calendar.MONTH, mes);
-                calendar.set(Calendar.DAY_OF_MONTH, dia);
-
-                dataEscolhidaRaw = formatoData.format(calendar.getTime());
-                textViewData.setText(formatoBrData.format(calendar.getTime()));
-            }
-        });
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (! textViewData.getText().equals("DD/MM/AAAA")) {
+                    int dayOfMonth = calendario.getDayOfMonth();
+                    int month = calendario.getMonth();
+                    int year = calendario.getYear();
+                    String dataRaw;
+                    String dataString;
+                    dataRaw = dayOfMonth + "/" + month + "/" + year;
+                    String parts[] = dataRaw.split("/");
+                    month++;
+                    int dia = Integer.parseInt(parts[0]);
+                    int mes = Integer.parseInt(parts[1]);
+                    int ano = Integer.parseInt(parts[2]);
+
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.set(Calendar.YEAR, ano);
+                    calendar.set(Calendar.MONTH, mes);
+                    calendar.set(Calendar.DAY_OF_MONTH, dia);
                     String dataEscolhida;
-                    dataEscolhida = textViewData.getText().toString();
+                    dataEscolhida = formatoBrData.format(calendar.getTime());
+
                     Intent intent = new Intent(CalendarioAgendamentoActivity.this, AgendamentoActivity.class);
                     tinyDB.putString("dataEscolhida", dataEscolhida);
                     CalendarioAgendamentoActivity.this.startActivity(intent);
