@@ -19,7 +19,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.gerenciamentodesalas.ItemClickListener;
 import com.example.gerenciamentodesalas.R;
 import com.example.gerenciamentodesalas.TinyDB;
 import com.example.gerenciamentodesalas.dao.SalasDAO;
@@ -54,10 +57,11 @@ public class ListaSalasActivity extends AppCompatActivity implements NavigationV
     private DrawerLayout drawer;
     TinyDB tinyDB;
     String jsonSalasString, nomeOrganizacao, idOrganizacao;
-    ListView listaDeSalas;
+    RecyclerView listaDeSalas;
     TextView textLoading;
     ProgressBar progressBar;
     DatePickerDialog dp;
+    private ItemClickListener onItemClickListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -139,43 +143,79 @@ public class ListaSalasActivity extends AppCompatActivity implements NavigationV
         final SimpleDateFormat formatoBrData = new SimpleDateFormat("dd/MM/yyyy");
         if (event.getEventName().equals("getSalas" + Constants.eventSuccessLabel)) {
             if (event.getEventStatusCode() == 200) {
+
                 SimpleDateFormat formatoData = new SimpleDateFormat("yyyy-MM-dd");
                 final Intent intent = new Intent(ListaSalasActivity.this, AgendamentoActivity.class);
                 jsonSalasString = event.getEventMsg();
                 tinyDB.putString("jsonSalasStr", jsonSalasString);
                 textLoading.setVisibility(View.GONE);
                 progressBar.setVisibility(View.GONE);
-                final List<Sala> salas = new SalasDAO().lista(this);
-                listaDeSalas.setAdapter(new ListaSalasAdapter(salas, ListaSalasActivity.this));
-                Calendar c =Calendar.getInstance();
-                String dataHoje = formatoData.format(c.getTime());
-                String [] data = dataHoje.split("-");
-                listaDeSalas.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        DatePickerDialog datePickerDialog = new DatePickerDialog(ListaSalasActivity.this,
-                                new DatePickerDialog.OnDateSetListener() {
-                                    @Override
-                                    public void onDateSet(DatePicker view, int year,
-                                                          int monthOfYear, int dayOfMonth) {
-                                        Calendar cal = Calendar.getInstance();
-                                        cal.set(Calendar.YEAR, year);
-                                        cal.set(Calendar.MONTH, monthOfYear);
-                                        cal.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                try {
+                    final List<Sala> salas = new SalasDAO().lista(this);
+                    ListaSalasAdapter adapter = new ListaSalasAdapter(salas, ListaSalasActivity.this);
+                    Calendar c = Calendar.getInstance();
+                    String dataHoje = formatoData.format(c.getTime());
+                    String[] data = dataHoje.split("-");
+                    adapter.setOnItemClickListener(new ItemClickListener() {
+                        @Override
+                        public void onItemClick(int position) {
+                            DatePickerDialog datePickerDialog = new DatePickerDialog(ListaSalasActivity.this,
+                                    new DatePickerDialog.OnDateSetListener() {
+                                        @Override
+                                        public void onDateSet(DatePicker view, int year,
+                                                              int monthOfYear, int dayOfMonth) {
+                                            Calendar cal = Calendar.getInstance();
+                                            cal.set(Calendar.YEAR, year);
+                                            cal.set(Calendar.MONTH, monthOfYear);
+                                            cal.set(Calendar.DAY_OF_MONTH, dayOfMonth);
 
-                                        Date data = cal.getTime();
-                                        String dataEscolhida = formatoBrData.format(data);
-                                        tinyDB.putString("dataEscolhida", dataEscolhida);
-                                        TextView salaEscolha = view.findViewById(R.id.textViewSalas);
-                                        Sala sala = salas.get(position);
-                                        tinyDB.putObject("salaEscolhida", sala);
-                                        ListaSalasActivity.this.startActivity(intent);
-                                    }
-                                }, Integer.parseInt(data[0]), Integer.parseInt(data[1]), Integer.parseInt(data[2]));
-                        datePickerDialog.setTitle("Escolha a data.");
-                        datePickerDialog.show();
-                    }
-                });
+                                            Date data = cal.getTime();
+                                            String dataEscolhida = formatoBrData.format(data);
+                                            tinyDB.putString("dataEscolhida", dataEscolhida);
+                                            TextView salaEscolha = view.findViewById(R.id.textViewSalas);
+                                            Sala sala = salas.get(position);
+                                            tinyDB.putObject("salaEscolhida", sala);
+                                            ListaSalasActivity.this.startActivity(intent);
+                                        }
+                                    }, Integer.parseInt(data[0]), Integer.parseInt(data[1]), Integer.parseInt(data[2]));
+                            datePickerDialog.setTitle("Escolha a data.");
+                            datePickerDialog.show();
+                        }
+                    });
+                    listaDeSalas.setAdapter(adapter);
+                    RecyclerView.LayoutManager layout = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+                    listaDeSalas.setLayoutManager(layout);
+                }
+                catch(Exception e) {
+                    e.printStackTrace();
+                }
+//                listaDeSalas.setOnClickListener(view -> onItemClickListener.onItemClick(view, getAdapterPosition()));
+//                listaDeSalas(new AdapterView.OnItemClickListener() {
+//                    @Override
+//                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+//                        DatePickerDialog datePickerDialog = new DatePickerDialog(ListaSalasActivity.this,
+//                                new DatePickerDialog.OnDateSetListener() {
+//                                    @Override
+//                                    public void onDateSet(DatePicker view, int year,
+//                                                          int monthOfYear, int dayOfMonth) {
+//                                        Calendar cal = Calendar.getInstance();
+//                                        cal.set(Calendar.YEAR, year);
+//                                        cal.set(Calendar.MONTH, monthOfYear);
+//                                        cal.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+//
+//                                        Date data = cal.getTime();
+//                                        String dataEscolhida = formatoBrData.format(data);
+//                                        tinyDB.putString("dataEscolhida", dataEscolhida);
+//                                        TextView salaEscolha = view.findViewById(R.id.textViewSalas);
+//                                        Sala sala = salas.get(position);
+//                                        tinyDB.putObject("salaEscolhida", sala);
+//                                        ListaSalasActivity.this.startActivity(intent);
+//                                    }
+//                                }, Integer.parseInt(data[0]), Integer.parseInt(data[1]), Integer.parseInt(data[2]));
+//                        datePickerDialog.setTitle("Escolha a data.");
+//                        datePickerDialog.show();
+//                    }
+//                });
             }
         }
         else if (event.getEventName().startsWith("getSalas" + Constants.eventErrorLabel)) {
@@ -212,6 +252,7 @@ public class ListaSalasActivity extends AppCompatActivity implements NavigationV
         }
 
     }
+
 
     @Override
     public void onBackPressed() {

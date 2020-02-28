@@ -39,6 +39,7 @@ import org.json.JSONArray;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -88,9 +89,13 @@ public class AgendamentoActivity extends AppCompatActivity implements Navigation
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        DateTime dtOrg = new DateTime(dataRaw);
-        DateTime dtPlusOne = dtOrg.plusDays(1);
-        Date dataFim = dtPlusOne.toDate();
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(dataRaw);
+        cal.add(Calendar.DAY_OF_MONTH, 1);
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        Date dataFim = cal.getTime();
         fimDiaEscolhido = formatoData.format(dataFim);
         dataStr = formatoData.format(dataRaw);
         final TextView textSala = findViewById(R.id.textNomeSala);
