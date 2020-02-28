@@ -112,7 +112,7 @@ public class LoginActivity extends AppCompatActivity {
     @Subscribe
     public void customEventReceived(Event event) {
         final Intent intent = new Intent(LoginActivity.this, ListaSalasActivity.class);
-        if (event.getEventName().equals("login" + Constants.eventSuccessLabel) || event.getEventStatusCode() == 200) {
+        if (event.getEventName().equals("login" + Constants.eventSuccessLabel) && event.getEventStatusCode() == 200) {
                 try {
                     String usuarioJSONStr = event.getEventMsg();
                     JSONObject usuarioJSON = new JSONObject(usuarioJSONStr);
@@ -126,7 +126,7 @@ public class LoginActivity extends AppCompatActivity {
                     Resources resources = getResources();
                     System.out.println(usuarioJSON.toString());
                     System.out.println(usuario.getEmail());
-                    builder.setMessage("login efetuado com sucesso!").setTitle("Sucesso!");
+                    builder.setMessage("Login efetuado com sucesso!").setTitle("Sucesso!");
                     builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
                             LoginActivity.this.startActivity(intent);

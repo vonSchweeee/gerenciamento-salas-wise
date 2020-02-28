@@ -17,7 +17,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.gerenciamentodesalas.ItemClickListener;
 import com.example.gerenciamentodesalas.R;
 import com.example.gerenciamentodesalas.TinyDB;
 import com.example.gerenciamentodesalas.model.AlocacaoSala;
@@ -33,12 +36,12 @@ import com.google.gson.Gson;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
-import org.joda.time.DateTime;
 import org.json.JSONArray;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -53,6 +56,8 @@ public class AgendamentoActivity extends AppCompatActivity implements Navigation
     String ip;
     String idSala;
     Boolean stopped = false;
+    private ItemClickListener onItemClickListener;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -88,9 +93,13 @@ public class AgendamentoActivity extends AppCompatActivity implements Navigation
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        DateTime dtOrg = new DateTime(dataRaw);
-        DateTime dtPlusOne = dtOrg.plusDays(1);
-        Date dataFim = dtPlusOne.toDate();
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(dataRaw);
+        cal.add(Calendar.DAY_OF_MONTH, 1);
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        Date dataFim = cal.getTime();
         fimDiaEscolhido = formatoData.format(dataFim);
         dataStr = formatoData.format(dataRaw);
         final TextView textSala = findViewById(R.id.textNomeSala);
@@ -169,30 +178,32 @@ public class AgendamentoActivity extends AppCompatActivity implements Navigation
         if (event.getEventName().equals("getAlocacoes" + Constants.eventSuccessLabel)) {
             tinyDB = new TinyDB(getApplicationContext());
             final Gson gson = new Gson();
-            List<AlocacaoSala> listaSalas = new ArrayList<AlocacaoSala>();
+            List<AlocacaoSala> listaAlocacaoSalas = new ArrayList<AlocacaoSala>();
             JSONArray alocacoesArray = null;
             System.out.println(event.getEventMsg());
             try {
                 alocacoesArray = new JSONArray(event.getEventMsg());
                 for(int i=0;i<alocacoesArray.length();i++) {
                     AlocacaoSala alocacao = gson.fromJson(alocacoesArray.getJSONObject(i).toString(), AlocacaoSala.class);
-                    listaSalas.add(i, alocacao);
+                    listaAlocacaoSalas.add(i, alocacao);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            final ListView listaDeAlocacao = findViewById(R.id.lista_alocacao_listview);
-            listaDeAlocacao.setAdapter(new AgendamentoAdapter(listaSalas, this));
+            final RecyclerView recyclerViewAlocacao = findViewById(R.id.lista_alocacao_listview);
+            RecyclerView.LayoutManager layout = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+            recyclerViewAlocacao.setLayoutManager(layout);
+            AgendamentoAdapter adapter = new AgendamentoAdapter(listaAlocacaoSalas, this);
             final JSONArray finalAlocacoesArray = alocacoesArray;
-            listaDeAlocacao.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            adapter.setOnItemClickListener(new ItemClickListener() {
                 @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                public void onItemClick(int position) {
                     try {
                         AlocacaoSala alocacao = gson.fromJson(finalAlocacoesArray.getJSONObject(position).toString(), AlocacaoSala.class);
-                            tinyDB.remove("modoAgendamento");
-                            tinyDB.remove("alocacaoSelecionada");
-                            tinyDB.putObject("alocacaoSelecionada", alocacao);
-                            tinyDB.putString("modoAgendamento", "alterar");
+                        tinyDB.remove("modoAgendamento");
+                        tinyDB.remove("alocacaoSelecionada");
+                        tinyDB.putObject("alocacaoSelecionada", alocacao);
+                        tinyDB.putString("modoAgendamento", "alterar");
                         AgendamentoActivity.this.startActivity(intentInfoAgendamento);
                     }
                     catch (Exception e) {
@@ -200,6 +211,7 @@ public class AgendamentoActivity extends AppCompatActivity implements Navigation
                     }
                 }
             });
+            recyclerViewAlocacao.setAdapter(adapter);
             final FloatingActionButton fabRemAlocacao = findViewById(R.id.fabRemAlocacao);
             fabRemAlocacao.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
@@ -211,9 +223,9 @@ public class AgendamentoActivity extends AppCompatActivity implements Navigation
                     });
                     AlertDialog dialog = builder.create();
                     dialog.show();
-                    listaDeAlocacao.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    adapter.setOnItemClickListener(new ItemClickListener() {
                         @Override
-                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        public void onItemClick(int position) {
                             try {
                                 AlocacaoSala alocacao = gson.fromJson(finalAlocacoesArray.getJSONObject(position).toString(), AlocacaoSala.class);
                                     tinyDB.remove("modoAgendamento");
@@ -226,6 +238,7 @@ public class AgendamentoActivity extends AppCompatActivity implements Navigation
                             }
                         }
                     });
+                    recyclerViewAlocacao.setAdapter(adapter);
                 }
             });
             if (event.getEventName().startsWith("getAlocacoes" + Constants.eventErrorLabel)) {

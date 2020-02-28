@@ -10,36 +10,37 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageRequest;
+import com.example.gerenciamentodesalas.ItemClickListener;
 import com.example.gerenciamentodesalas.R;
+import com.example.gerenciamentodesalas.model.Constants;
+import com.example.gerenciamentodesalas.model.Event;
 import com.example.gerenciamentodesalas.model.Sala;
 import com.example.gerenciamentodesalas.service.VolleySingleton;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.List;
 
-public class ListaSalasAdapter extends BaseAdapter {
+public class ListaSalasAdapter extends RecyclerView.Adapter {
 
     private final List<Sala> salasList;
     private Context context;
     private LruCache<String, Bitmap> memoryCache;
 
     public ListaSalasAdapter(List<Sala> salasList, Context context){
-
         this.salasList = salasList;
         this.context = context;
     }
+    private static ItemClickListener itemClickListener;
 
-    @Override
-    public int getCount() {
-        return salasList.size();
-    }
-
-    @Override
-    public Sala getItem(int position) {
-        return salasList.get(position);
+    public void setOnItemClickListener(ItemClickListener itemClickListener){
+        this.itemClickListener = itemClickListener;
     }
 
     @Override
@@ -47,32 +48,31 @@ public class ListaSalasAdapter extends BaseAdapter {
         return 0;
     }
 
+    @Override public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(context).inflate(R.layout.item_sala, parent, false);
+        ViewHolder holder = new ViewHolder(view);
+        return holder;
+    }
 
-    @Override
-    public View getView(int position, View view, ViewGroup parent) {
-        if (view != null) return view;
-        View viewCriada = LayoutInflater.from(context).inflate(R.layout.item_sala, parent, false);
-
+    @Override public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int position) {
+        ViewHolder holder = (ViewHolder) viewHolder;
         Sala sala = salasList.get(position);
         String urlImagem = sala.getUrlImagem();
-
-        TextView textViewSalas = viewCriada.findViewById(R.id.textViewSalas);
-        final ImageView imageViewSala = viewCriada.findViewById(R.id.imageViewSala);
         if (urlImagem != null) {
             try {
                 final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
                 final int cacheSize = maxMemory / 10;
                 memoryCache = new LruCache<String, Bitmap>(cacheSize);
                 if (memoryCache.get("imgSala_" + position) != null) {
-                    imageViewSala.setImageBitmap(memoryCache.get("imgSala_" + position));
+                    holder.imageViewSalas.setImageBitmap(memoryCache.get("imgSala_" + position));
                 }
                 else {
                     ImageRequest imageRequest = new ImageRequest(urlImagem, new Response.Listener<Bitmap>() {
                         @Override
                         public void onResponse(Bitmap response) {
-                            Bitmap imagem = null;
                             memoryCache.put("imgSala_" + position, response);
-                            imageViewSala.setImageBitmap(memoryCache.get("imgSala_" + position));
+                            holder.imageViewSalas.setImageBitmap(memoryCache.get("imgSala_" + position));
+                            EventBus.getDefault().post(new Event("getImagensSalas" + position + Constants.eventSuccessLabel, "Sucesso", 200));
                         }
                     }, 1280, 720, ImageView.ScaleType.CENTER_CROP, Bitmap.Config.RGB_565, new Response.ErrorListener() {
                         @Override
@@ -90,9 +90,28 @@ public class ListaSalasAdapter extends BaseAdapter {
                 e.printStackTrace();
             }
         }
-        textViewSalas.setText(sala.getNome());
-        return viewCriada;
+        holder.nomeSala.setText(sala.getNome());
+    }
+
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        final TextView nomeSala;
+        final ImageView imageViewSalas;
+        public ViewHolder(View view) {
+            super(view);
+            nomeSala = view.findViewById(R.id.textViewSalas);
+            imageViewSalas = view.findViewById(R.id.imageViewSala);
+
+            view.setOnClickListener(this);
+        }
+        @Override
+        public void onClick(View view) {
+            if(itemClickListener != null) {
+                itemClickListener.onItemClick(getAdapterPosition());
+            }
+        }
 
     }
+    @Override public int getItemCount() { return salasList.size(); }
+
 
 }
