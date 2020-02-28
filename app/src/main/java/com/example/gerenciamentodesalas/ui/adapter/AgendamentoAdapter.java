@@ -1,12 +1,14 @@
 package com.example.gerenciamentodesalas.ui.adapter;
 
 import android.content.Context;
+import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+import androidx.annotation.RequiresApi;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.gerenciamentodesalas.ItemClickListener;
@@ -51,6 +53,18 @@ public class AgendamentoAdapter extends RecyclerView.Adapter {
         return holder;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    private String getUsuarioAlocacao(List<Usuario> listaUsuario, int idUsuario){
+        Usuario usuarioStream = listaUsuario.stream()
+                .filter(usuario -> idUsuario == usuario.getId())
+                .findFirst()
+                .orElse(null);
+        if (usuarioStream != null)
+            return usuarioStream.getNome();
+        else
+            return null;
+    }
+
     @Override public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int position) {
         ViewHolder holder = (ViewHolder) viewHolder;
         AlocacaoSala alocacao = listaAlocacaoSala.get(position);
@@ -63,8 +77,17 @@ public class AgendamentoAdapter extends RecyclerView.Adapter {
         try {
             int idUsuario = alocacao.getIdUsuario();
             System.out.println(idUsuario);
-            String nomeUsuario = listaUsuario.get(idUsuario - 1).getNome();
-            System.out.println(nomeUsuario);
+            String nomeUsuario = "Usuário";
+            if(Build.VERSION.SDK_INT > 24) {
+                nomeUsuario = getUsuarioAlocacao(listaUsuario, idUsuario);
+            }
+            else {
+                for(Usuario usuario: listaUsuario){
+                    if(usuario.getId() == idUsuario){
+                        nomeUsuario = usuario.getNome();
+                    }
+                }
+            }
             holder.textUsuario.setText(nomeUsuario);
         }
         catch (Exception e) {

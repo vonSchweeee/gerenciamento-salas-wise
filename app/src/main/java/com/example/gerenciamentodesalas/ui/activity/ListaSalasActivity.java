@@ -1,15 +1,12 @@
 package com.example.gerenciamentodesalas.ui.activity;
 
 import android.app.DatePickerDialog;
-import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.DatePicker;
-import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -22,6 +19,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.android.volley.toolbox.Volley;
 import com.example.gerenciamentodesalas.ItemClickListener;
 import com.example.gerenciamentodesalas.R;
 import com.example.gerenciamentodesalas.TinyDB;
@@ -31,10 +29,8 @@ import com.example.gerenciamentodesalas.model.Event;
 import com.example.gerenciamentodesalas.model.Sala;
 import com.example.gerenciamentodesalas.model.Usuario;
 import com.example.gerenciamentodesalas.service.HttpRequest;
+import com.example.gerenciamentodesalas.service.VolleySingleton;
 import com.example.gerenciamentodesalas.ui.adapter.ListaSalasAdapter;
-import com.google.android.material.datepicker.DateSelector;
-import com.google.android.material.datepicker.MaterialCalendar;
-import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.Gson;
@@ -57,11 +53,13 @@ public class ListaSalasActivity extends AppCompatActivity implements NavigationV
     private DrawerLayout drawer;
     TinyDB tinyDB;
     String jsonSalasString, nomeOrganizacao, idOrganizacao;
-    RecyclerView listaDeSalas;
+    RecyclerView recyclerViewSalas;
     TextView textLoading;
     ProgressBar progressBar;
     DatePickerDialog dp;
     private ItemClickListener onItemClickListener;
+    List<Sala> salas;
+    int quantItens;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,7 +84,8 @@ public class ListaSalasActivity extends AppCompatActivity implements NavigationV
         navOrg.setText(tinyDB.getObject("usuario", Usuario.class).getIdOrganizacao().getNome());
         navEmail.setText(tinyDB.getObject("usuario", Usuario.class).getEmail());
         toggle.syncState();
-        listaDeSalas = findViewById(R.id.lista_salas_listview);
+        recyclerViewSalas = findViewById(R.id.lista_salas_listview);
+        recyclerViewSalas.setVisibility(View.INVISIBLE);
         Resources resources = getResources();
         String url = resources.getString(R.string.ip);
         Usuario usuario = tinyDB.getObject("usuario", Usuario.class);
@@ -148,10 +147,8 @@ public class ListaSalasActivity extends AppCompatActivity implements NavigationV
                 final Intent intent = new Intent(ListaSalasActivity.this, AgendamentoActivity.class);
                 jsonSalasString = event.getEventMsg();
                 tinyDB.putString("jsonSalasStr", jsonSalasString);
-                textLoading.setVisibility(View.GONE);
-                progressBar.setVisibility(View.GONE);
                 try {
-                    final List<Sala> salas = new SalasDAO().lista(this);
+                    salas = new SalasDAO().lista(this);
                     ListaSalasAdapter adapter = new ListaSalasAdapter(salas, ListaSalasActivity.this);
                     Calendar c = Calendar.getInstance();
                     String dataHoje = formatoData.format(c.getTime());
@@ -182,9 +179,9 @@ public class ListaSalasActivity extends AppCompatActivity implements NavigationV
                             datePickerDialog.show();
                         }
                     });
-                    listaDeSalas.setAdapter(adapter);
+                    recyclerViewSalas.setAdapter(adapter);
                     RecyclerView.LayoutManager layout = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
-                    listaDeSalas.setLayoutManager(layout);
+                    recyclerViewSalas.setLayoutManager(layout);
                 }
                 catch(Exception e) {
                     e.printStackTrace();
@@ -249,6 +246,15 @@ public class ListaSalasActivity extends AppCompatActivity implements NavigationV
                 }
 
             }
+        }
+        System.out.println(event.getEventName());
+        LinearLayoutManager linearLayoutManager = ((LinearLayoutManager)recyclerViewSalas.getLayoutManager());
+        quantItens = linearLayoutManager.findLastVisibleItemPosition();
+        System.out.println(quantItens);
+        if (event.getEventName().equals("getImagensSalas" + quantItens + Constants.eventSuccessLabel)) {
+            textLoading.setVisibility(View.GONE);
+            progressBar.setVisibility(View.GONE);
+            recyclerViewSalas.setVisibility(View.VISIBLE);
         }
 
     }

@@ -18,8 +18,12 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageRequest;
 import com.example.gerenciamentodesalas.ItemClickListener;
 import com.example.gerenciamentodesalas.R;
+import com.example.gerenciamentodesalas.model.Constants;
+import com.example.gerenciamentodesalas.model.Event;
 import com.example.gerenciamentodesalas.model.Sala;
 import com.example.gerenciamentodesalas.service.VolleySingleton;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.List;
 
@@ -66,9 +70,9 @@ public class ListaSalasAdapter extends RecyclerView.Adapter {
                     ImageRequest imageRequest = new ImageRequest(urlImagem, new Response.Listener<Bitmap>() {
                         @Override
                         public void onResponse(Bitmap response) {
-                            Bitmap imagem = null;
                             memoryCache.put("imgSala_" + position, response);
                             holder.imageViewSalas.setImageBitmap(memoryCache.get("imgSala_" + position));
+                            EventBus.getDefault().post(new Event("getImagensSalas" + position + Constants.eventSuccessLabel, "Sucesso", 200));
                         }
                     }, 1280, 720, ImageView.ScaleType.CENTER_CROP, Bitmap.Config.RGB_565, new Response.ErrorListener() {
                         @Override
@@ -96,6 +100,7 @@ public class ListaSalasAdapter extends RecyclerView.Adapter {
             super(view);
             nomeSala = view.findViewById(R.id.textViewSalas);
             imageViewSalas = view.findViewById(R.id.imageViewSala);
+
             view.setOnClickListener(this);
         }
         @Override

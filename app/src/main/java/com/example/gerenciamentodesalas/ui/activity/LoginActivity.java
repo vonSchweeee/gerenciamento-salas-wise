@@ -112,7 +112,7 @@ public class LoginActivity extends AppCompatActivity {
     @Subscribe
     public void customEventReceived(Event event) {
         final Intent intent = new Intent(LoginActivity.this, ListaSalasActivity.class);
-        if (event.getEventName().equals("login" + Constants.eventSuccessLabel) || event.getEventStatusCode() == 200) {
+        if (event.getEventName().equals("login" + Constants.eventSuccessLabel) && event.getEventStatusCode() == 200) {
                 try {
                     String usuarioJSONStr = event.getEventMsg();
                     JSONObject usuarioJSON = new JSONObject(usuarioJSONStr);
