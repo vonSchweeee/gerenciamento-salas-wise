@@ -97,6 +97,7 @@ public class InfoAgendamentoActivity extends AppCompatActivity implements Naviga
 
         if (modoAgendamento.equals("criar")) {
             System.out.println("Criando Agendamento");
+            btnConfirmar.setEnabled(false);
             try {
                 data = formatoDataSql.format(formatoDataBr.parse(tinyDB.getString("dataEscolhida")));
             } catch (ParseException e) {
@@ -132,6 +133,8 @@ public class InfoAgendamentoActivity extends AppCompatActivity implements Naviga
                             String horaEscolhidaStr = formatoTempo.format(horaEscolhida);
                             textHoraInicio.setText(horaEscolhidaStr);
                             inicioAlterado = true;
+                            if (fimAlterado && ! textDescricao.getText().toString().isEmpty())
+                                btnConfirmar.setEnabled(true);
                         }
                     }, hour, minute, true);
                     mTimePicker.setTitle("Escolha o horário");
@@ -167,6 +170,8 @@ public class InfoAgendamentoActivity extends AppCompatActivity implements Naviga
                             String horaEscolhidaStr = formatoTempo.format(horaEscolhida);
                             textHoraFim.setText(horaEscolhidaStr);
                             fimAlterado = true;
+                            if (inicioAlterado && ! textDescricao.getText().toString().isEmpty())
+                                btnConfirmar.setEnabled(true);
                         }
                     }, hour, minute, true);
                     timePicker.setTitle("Escolha o horário");
@@ -334,6 +339,8 @@ public class InfoAgendamentoActivity extends AppCompatActivity implements Naviga
                                 String horaEscolhidaStr = formatoTempo.format(horaEscolhida);
                                 textHoraInicio.setText(horaEscolhidaStr);
                                 inicioAlterado = true;
+                                if (fimAlterado && ! textDescricao.getText().toString().isEmpty())
+                                    btnConfirmar.setEnabled(true);
                             }
                         }, hour, minute, true);
                         mTimePicker.setTitle("Escolha o horário");
@@ -374,6 +381,8 @@ public class InfoAgendamentoActivity extends AppCompatActivity implements Naviga
                                 String horaEscolhidaStr = formatoTempo.format(horaEscolhida);
                                 textHoraFim.setText(horaEscolhidaStr);
                                 fimAlterado = true;
+                                if (inicioAlterado && ! textDescricao.getText().toString().isEmpty())
+                                    btnConfirmar.setEnabled(true);
                             }
                         }, hour, minute, true);
                         timePicker.setTitle("Escolha o horário");
@@ -508,21 +517,39 @@ public class InfoAgendamentoActivity extends AppCompatActivity implements Naviga
             }
         }
         else if (event.getEventName().equals("Reservar" + Constants.eventErrorLabel)) {
-            builder.setMessage("Erro no servidor ao realizar a alocação.").setTitle("Erro.");
-            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int id) {
-                    dialog.dismiss();
-                }
-            });
-            builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            if (event.getEventMsg().equals("Alocação conflita em horário com outra alocação")) {
+                builder.setMessage("A alocacação conflita em horário com outra alocação.").setTitle("Erro.");
+                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.dismiss();
+                    }
+                });
+                builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
                     @Override
                     public void onCancel(DialogInterface dialog) {
                         dialog.dismiss();
                     }
                 });
-            AlertDialog dialog = builder.create();
-            dialog.show();
+                AlertDialog dialog = builder.create();
+                dialog.show();
             }
+            else {
+                builder.setMessage("Erro no servidor ao realizar a alocação.").setTitle("Erro.");
+                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.dismiss();
+                    }
+                });
+                builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                    @Override
+                    public void onCancel(DialogInterface dialog) {
+                        dialog.dismiss();
+                    }
+                });
+                AlertDialog dialog = builder.create();
+                dialog.show();
+            }
+        }
         else if (event.getEventName().startsWith("Reservar" + Constants.eventErrorLabel)) {
             builder.setMessage(event.getEventMsg()).setTitle("Erro.");
             builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {

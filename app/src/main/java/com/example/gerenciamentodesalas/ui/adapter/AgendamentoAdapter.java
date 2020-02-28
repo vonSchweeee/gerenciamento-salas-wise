@@ -7,6 +7,9 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.gerenciamentodesalas.ItemClickListener;
 import com.example.gerenciamentodesalas.R;
 import com.example.gerenciamentodesalas.TinyDB;
 import com.example.gerenciamentodesalas.model.AlocacaoSala;
@@ -18,7 +21,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
-public class AgendamentoAdapter extends BaseAdapter {
+public class AgendamentoAdapter extends RecyclerView.Adapter {
 
     private final List<AlocacaoSala> listaAlocacaoSala;
     private Context context;
@@ -30,46 +33,64 @@ public class AgendamentoAdapter extends BaseAdapter {
         this.context = context;
     }
 
-    @Override
-    public int getCount() {
-        return listaAlocacaoSala.size();
+    private static ItemClickListener itemClickListener;
+
+    public void setOnItemClickListener(ItemClickListener itemClickListener){
+        this.itemClickListener = itemClickListener;
     }
 
-    @Override
-    public AlocacaoSala getItem(int position) {
-        return listaAlocacaoSala.get(position);
-    }
 
     @Override
     public long getItemId(int position) {
         return 0;
     }
 
-    @Override
-    public View getView(int position, View view, ViewGroup parent) {
-        View viewCriada = LayoutInflater.from(context).inflate(R.layout.item_alocacao, parent, false);
+    @Override public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(context).inflate(R.layout.item_alocacao, parent, false);
+        ViewHolder holder = new ViewHolder(view);
+        return holder;
+    }
+
+    @Override public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int position) {
+        ViewHolder holder = (ViewHolder) viewHolder;
+        AlocacaoSala alocacao = listaAlocacaoSala.get(position);
         tinyDB = new TinyDB(context);
         SimpleDateFormat formatoHorario = new SimpleDateFormat("HH:mm", new Locale("pt", "BR"));
         formatoHorario.setTimeZone(TimeZone.getTimeZone("America/Sao_Paulo"));
-        AlocacaoSala alocacaoSala = listaAlocacaoSala.get(position);
-        TextView textHorario = viewCriada.findViewById(R.id.textViewHoraAlocacao);
-        TextView textDescAlocacao = viewCriada.findViewById(R.id.textViewCardAluguel);
-        TextView textUsuario = viewCriada.findViewById(R.id.textViewUsuarioAlocacao);
-        textDescAlocacao.setText(alocacaoSala.getDescricao());
-        textHorario.setText(formatoHorario.format(alocacaoSala.getDataHoraInicio()) + "\r\n" + formatoHorario.format(alocacaoSala.getDataHoraFim()));
+        holder.textDescAlocacao.setText(alocacao.getDescricao());
+        holder.textHorario.setText(formatoHorario.format(alocacao.getDataHoraInicio()) + "\r\n" + formatoHorario.format(alocacao.getDataHoraFim()));
         List<Usuario> listaUsuario = (ArrayList<Usuario>)(Object) tinyDB.getListObject("usuarioList", Usuario.class) ;
         try {
-            int idUsuario = alocacaoSala.getIdUsuario();
+            int idUsuario = alocacao.getIdUsuario();
             System.out.println(idUsuario);
             String nomeUsuario = listaUsuario.get(idUsuario - 1).getNome();
             System.out.println(nomeUsuario);
-            textUsuario.setText(nomeUsuario);
+            holder.textUsuario.setText(nomeUsuario);
         }
         catch (Exception e) {
             e.printStackTrace();
         }
-        return viewCriada;
+    }
 
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        final TextView textHorario;
+        final TextView textDescAlocacao;
+        final TextView textUsuario;
+        public ViewHolder(View view) {
+            super(view);
+            textHorario = view.findViewById(R.id.textViewHoraAlocacao);
+            textDescAlocacao = view.findViewById(R.id.textViewCardAluguel);
+            textUsuario = view.findViewById(R.id.textViewUsuarioAlocacao);
+            view.setOnClickListener(this);
+        }
+        @Override
+        public void onClick(View view) {
+            if(itemClickListener != null) {
+                itemClickListener.onItemClick(getAdapterPosition());
+            }
+        }
 
     }
+    @Override public int getItemCount() { return listaAlocacaoSala.size(); }
+
 }
