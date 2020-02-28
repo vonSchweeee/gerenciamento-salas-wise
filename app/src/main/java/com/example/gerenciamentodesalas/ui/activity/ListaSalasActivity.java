@@ -174,7 +174,7 @@ public class ListaSalasActivity extends AppCompatActivity implements NavigationV
                                             tinyDB.putObject("salaEscolhida", sala);
                                             ListaSalasActivity.this.startActivity(intent);
                                         }
-                                    }, Integer.parseInt(data[0]), Integer.parseInt(data[1]), Integer.parseInt(data[2]));
+                                    }, Integer.parseInt(data[0]), Integer.parseInt(data[1])-1, Integer.parseInt(data[2]));
                             datePickerDialog.setTitle("Escolha a data.");
                             datePickerDialog.show();
                         }

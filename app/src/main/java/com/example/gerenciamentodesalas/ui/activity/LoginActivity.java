@@ -126,7 +126,7 @@ public class LoginActivity extends AppCompatActivity {
                     Resources resources = getResources();
                     System.out.println(usuarioJSON.toString());
                     System.out.println(usuario.getEmail());
-                    builder.setMessage("login efetuado com sucesso!").setTitle("Sucesso!");
+                    builder.setMessage("Login efetuado com sucesso!").setTitle("Sucesso!");
                     builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
                             LoginActivity.this.startActivity(intent);
