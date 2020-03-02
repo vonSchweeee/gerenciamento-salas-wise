@@ -752,9 +752,9 @@ public class InfoAgendamentoActivity extends AppCompatActivity implements Naviga
             });
             AlertDialog dialog = builder.create();
             dialog.show();
-        } else if (event.getEventName().equals("Reservar" + Constants.eventSuccessLabel)) {
+        } else if (event.getEventName().equals("AlterarReserva" + Constants.eventSuccessLabel)) {
             if (event.getEventStatusCode() == 201) {
-                builder.setMessage("Alocação realizada com sucesso.").setTitle("Sucesso!");
+                builder.setMessage("Alocação alterada com sucesso.").setTitle("Sucesso!");
                 builder.setNeutralButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -763,7 +763,24 @@ public class InfoAgendamentoActivity extends AppCompatActivity implements Naviga
                 });
                 AlertDialog dialog = builder.create();
                 dialog.show();
-            } else {
+            }
+            else if (event.getEventMsg().equals("Alocação conflita em horário com outra alocação")) {
+                builder.setMessage("A alocacação conflita em horário com outra alocação.").setTitle("Erro.");
+                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.dismiss();
+                    }
+                });
+                builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                    @Override
+                    public void onCancel(DialogInterface dialog) {
+                        dialog.dismiss();
+                    }
+                });
+                AlertDialog dialog = builder.create();
+                dialog.show();
+            }
+            else {
                 if (event.getEventStatusCode() == 500) {
                     builder.setMessage("Erro no servidor.").setTitle("Erro.");
                     builder.setNeutralButton("OK", new DialogInterface.OnClickListener() {
