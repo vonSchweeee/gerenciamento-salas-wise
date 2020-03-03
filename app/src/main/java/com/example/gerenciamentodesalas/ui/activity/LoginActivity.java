@@ -5,6 +5,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -41,6 +43,7 @@ public class LoginActivity extends AppCompatActivity {
     TinyDB tinyDB;
     LottieAnimationView viewLoading;
     String ip;
+    Boolean emailAlterado, senhaAlterada;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,6 +55,9 @@ public class LoginActivity extends AppCompatActivity {
         btnRegistro = findViewById(R.id.btnRegistro);
         viewEmail = findViewById(R.id.inputLogin);
         viewSenha = findViewById(R.id.inputSenha);
+        btnLogin.setEnabled(false);
+        emailAlterado = false;
+        senhaAlterada = false;
         btnRegistro.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -60,6 +66,56 @@ public class LoginActivity extends AppCompatActivity {
 
                 }
             });
+        viewEmail.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (! s.toString().equals("")) {
+                    emailAlterado = true;
+                    if (senhaAlterada)
+                        btnLogin.setEnabled(true);
+                }
+                else {
+                    emailAlterado = false;
+                    btnLogin.setEnabled(false);
+                }
+
+            }
+        });
+        viewSenha.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (! s.toString().equals("")) {
+                    senhaAlterada = true;
+                    if (emailAlterado)
+                        btnLogin.setEnabled(true);
+                }
+                else {
+                    senhaAlterada = false;
+                    btnLogin.setEnabled(false);
+                }
+
+            }
+        });
         btnLogin.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -146,8 +202,8 @@ public class LoginActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
         }
-        else if (event.getEventName().equals("login" + Constants.eventErrorLabel)){
-            builder.setMessage("Falha na conexão." + "\r\nErro na comunicação com o servidor.").setTitle("Erro");
+        if(event.getEventMsg().equals("Usuário não encontrado")){
+            builder.setMessage("Credenciais incorretas.").setTitle("Erro");
             builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
                     dialog.dismiss();
@@ -156,7 +212,7 @@ public class LoginActivity extends AppCompatActivity {
             AlertDialog dialog = builder.create();
             dialog.show();
         }
-        else if (event.getEventName().equals("login" + Constants.eventErrorLabel)){
+        else if (event.getEventName().startsWith("login" + Constants.eventErrorLabel)){
             builder.setMessage("Falha na conexão." + "\r\nErro na comunicação com o servidor.").setTitle("Erro");
             builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {

@@ -249,8 +249,12 @@ public class ListaSalasActivity extends AppCompatActivity implements NavigationV
         }
         System.out.println(event.getEventName());
         LinearLayoutManager linearLayoutManager = ((LinearLayoutManager)recyclerViewSalas.getLayoutManager());
-        quantItens = linearLayoutManager.findLastVisibleItemPosition();
-        System.out.println(quantItens);
+        try {
+            quantItens = linearLayoutManager.findLastVisibleItemPosition();
+        }
+        catch (Exception e) {
+            quantItens = 0;
+        }
         if (event.getEventName().equals("getImagensSalas" + quantItens + Constants.eventSuccessLabel)) {
             textLoading.setVisibility(View.GONE);
             progressBar.setVisibility(View.GONE);
