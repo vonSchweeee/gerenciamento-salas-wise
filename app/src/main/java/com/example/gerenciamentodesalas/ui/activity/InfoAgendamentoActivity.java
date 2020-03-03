@@ -504,6 +504,8 @@ public class InfoAgendamentoActivity extends AppCompatActivity implements Naviga
                             try {
                                 horaEscolhida = formatoTempo.parse(selectedHour + ":" + selectedMinute);
                                 horaFim = formatoDataHora.parse(data + " " + selectedHour + ":" + selectedMinute + ":" + "00");
+                                if (horaInicio != dataHoraInicioInicial || horaFim != dataHoraFimInicial)
+                                    escolhido = true;
                             } catch (ParseException e) {
                                 e.printStackTrace();
                             }
@@ -641,6 +643,24 @@ public class InfoAgendamentoActivity extends AppCompatActivity implements Naviga
     public void customEventReceived(Event event) {
         final Intent intent = new Intent(InfoAgendamentoActivity.this, CalendarioAgendamentoActivity.class);
         builder = new AlertDialog.Builder(InfoAgendamentoActivity.this);
+        if(event.getEventStatusCode() == 400){
+            if(event.getEventMsg().equals("Alocação conflita em horário com outra alocação")){
+                builder.setMessage("A alocacação conflita em horário com outra alocação.").setTitle("Erro.");
+                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.dismiss();
+                    }
+                });
+                builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                    @Override
+                    public void onCancel(DialogInterface dialog) {
+                        dialog.dismiss();
+                    }
+                });
+                AlertDialog dialog = builder.create();
+                dialog.show();
+            }
+        }
         if (event.getEventName().equals("Reservar" + Constants.eventSuccessLabel)) {
             if (event.getEventStatusCode() == 201) {
                 builder.setMessage("Reserva realizada com sucesso!").setTitle("Sucesso!");
